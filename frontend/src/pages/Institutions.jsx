@@ -13,6 +13,20 @@ import { usePageHeader } from '../lib/pageHeader'
 
 const { useList, useCreate, useUpdate, useDelete } = createResourceHooks('institutions', '/institutions')
 
+export const INSTITUTION_TYPE_LABELS = {
+  Hospital: 'Hospital',
+  Clinic: 'Clínica',
+  Laboratory: 'Laboratorio',
+  Pharmacy: 'Farmacia',
+  'Diagnostic Center': 'Centro de Diagnóstico',
+  'Nursing Home': 'Residencia de Mayores',
+  Other: 'Otro',
+}
+
+export function translateInstitutionType(type) {
+  return INSTITUTION_TYPE_LABELS[type] || type
+}
+
 function doctorCount(institution) {
   return Number(institution.doctor_count) || 0
 }
@@ -31,11 +45,11 @@ export default function Institutions() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   usePageHeader({
-    title: 'Institutions',
-    subtitle: 'Hospitals, clinics, labs, and pharmacies on file',
+    title: 'Instituciones',
+    subtitle: 'Hospitales, clínicas, laboratorios y farmacias registradas',
     action: (
       <Button onClick={() => setAddOpen(true)}>
-        <Plus size={16} /> Add institution
+        <Plus size={16} /> Agregar institución
       </Button>
     ),
   })
@@ -55,10 +69,10 @@ export default function Institutions() {
   async function handleAdd(payload) {
     try {
       await createInstitution.mutateAsync(payload)
-      notify('Institution added')
+      notify('Institución agregada')
       setAddOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save institution', 'error')
+      notify(err.message || 'Error al guardar institución', 'error')
     }
   }
 
@@ -66,17 +80,17 @@ export default function Institutions() {
     if (!editTarget) return
     try {
       await updateInstitution.mutateAsync({ id: editTarget.id, data: payload })
-      notify('Institution updated')
+      notify('Institución actualizada')
       setEditTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to save institution', 'error')
+      notify(err.message || 'Error al guardar institución', 'error')
     }
   }
 
   function requestDelete(institution) {
     if (doctorCount(institution) > 0) {
       notify(
-        `Can't delete "${institution.name}": it has ${doctorCount(institution)} associated doctor(s). Remove those associations first.`,
+        `No se puede eliminar "${institution.name}": tiene ${doctorCount(institution)} associated médico(s) asociado(s). Desvincula los médicos primero.`,
         'error',
       )
       return
@@ -88,10 +102,10 @@ export default function Institutions() {
     if (!deleteTarget) return
     try {
       await deleteInstitution.mutateAsync(deleteTarget.id)
-      notify('Institution deleted')
+      notify('Institución eliminada')
       setDeleteTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to delete institution', 'error')
+      notify(err.message || 'Error al eliminar institución', 'error')
     }
   }
 
@@ -103,7 +117,7 @@ export default function Institutions() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, address, phone, or email…"
+            placeholder="Buscar por nombre, dirección, teléfono o email…"
             className="w-full bg-transparent text-sm outline-none placeholder:text-muted-2"
           />
         </div>
@@ -117,18 +131,18 @@ export default function Institutions() {
       <div className="glass rounded-[20px]">
         <div className="flex items-center justify-between border-b border-glass-border px-5 py-3.75">
           <h2 className="text-[0.9rem] font-bold">
-            Institution list{' '}
+            Lista de instituciones{' '}
             <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{filtered.length}</span>
           </h2>
         </div>
 
         {isLoading ? (
-          <div className="p-5 text-sm text-muted">Loading…</div>
+          <div className="p-5 text-sm text-muted">Cargando…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Building2}
-            title="No institutions found"
-            description={institutions?.length ? 'Try a different search.' : 'Add your first institution to get started.'}
+            title="No se encontraron instituciones"
+            description={institutions?.length ? 'Prueba con otra búsqueda.' : 'Agrega tu primera institución para comenzar.'}
           />
         ) : (
           <>
@@ -144,9 +158,9 @@ export default function Institutions() {
                   <div className="pointer-events-none relative z-10 min-w-0 flex-1">
                     <div className="truncate font-semibold text-text">{i.name}</div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                      {i.type && <Badge>{i.type}</Badge>}
+                      {i.type && <Badge>{translateInstitutionType(i.type)}</Badge>}
                       <span className="text-xs text-muted">
-                        {doctorCount(i)} doctor{doctorCount(i) === 1 ? '' : 's'}
+                        {doctorCount(i)} médico{doctorCount(i) === 1 ? '' : 's'}
                       </span>
                     </div>
                     <div className="mt-1.5 flex flex-col gap-0.5 text-xs">
@@ -171,11 +185,11 @@ export default function Institutions() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-glass-border bg-white/3 text-left font-mono text-[0.68rem] uppercase tracking-wide text-muted-2">
-                    <th className="px-5 py-2.5 font-semibold">Name</th>
-                    <th className="px-5 py-2.5 font-semibold">Type</th>
-                    <th className="px-5 py-2.5 font-semibold">Address</th>
-                    <th className="px-5 py-2.5 font-semibold">Contact</th>
-                    <th className="px-5 py-2.5 font-semibold">Doctors</th>
+                    <th className="px-5 py-2.5 font-semibold">Nombre</th>
+                    <th className="px-5 py-2.5 font-semibold">Tipo</th>
+                    <th className="px-5 py-2.5 font-semibold">Dirección</th>
+                    <th className="px-5 py-2.5 font-semibold">Contacto</th>
+                    <th className="px-5 py-2.5 font-semibold">Médicos</th>
                     <th className="px-5 py-2.5" />
                   </tr>
                 </thead>
@@ -197,7 +211,7 @@ export default function Institutions() {
                           </a>
                         )}
                       </td>
-                      <td className="px-5 py-3">{i.type ? <Badge>{i.type}</Badge> : '-'}</td>
+                      <td className="px-5 py-3">{i.type ? <Badge>{translateInstitutionType(i.type)}</Badge> : '-'}</td>
                       <td className="px-5 py-3 text-muted">{i.address || 'Not provided'}</td>
                       <td className="px-5 py-3">
                         {i.phone && (
@@ -213,7 +227,7 @@ export default function Institutions() {
                         {!i.phone && !i.email && <span className="text-muted-2">Not provided</span>}
                       </td>
                       <td className="px-5 py-3 text-muted">
-                        {doctorCount(i)} doctor{doctorCount(i) === 1 ? '' : 's'}
+                        {doctorCount(i)} médico{doctorCount(i) === 1 ? '' : 's'}
                       </td>
                       <td className="px-5 py-3">
                         <div className="flex justify-end gap-1">
@@ -250,7 +264,7 @@ export default function Institutions() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete institution"
+        title="Eliminar institución"
         description={deleteTarget && `Delete "${deleteTarget.name}"? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deleteInstitution.isPending}

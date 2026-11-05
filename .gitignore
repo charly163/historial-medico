@@ -37,3 +37,7 @@ vite.config.ts.timestamp-*
 # App specific
 CLAUDE.md
 uploads
+pgdata/
+pgsql/
+*.zip
+*.log

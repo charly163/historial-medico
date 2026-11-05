@@ -1,3 +1,4 @@
+require('dotenv').config({ path: require('path').join(__dirname, '../../../.env') });
 const jwt = require('jsonwebtoken');
 
 // No insecure fallback here on purpose — mirrors db.js's DB_USER/DB_PASSWORD

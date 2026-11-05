@@ -37,11 +37,11 @@ function toForm(prescription) {
 
 function computeErrors(f) {
   const next = {}
-  if (!f.appointment_id) next.appointment_id = 'Please select an appointment'
-  if (!f.medication_id) next.medication_id = 'Please select a medication'
-  if (!f.dosage.trim()) next.dosage = 'Dosage is required'
-  if (!f.frequency) next.frequency = 'Please select a frequency'
-  if (!f.duration.trim()) next.duration = 'Duration is required'
+  if (!f.appointment_id) next.appointment_id = 'Por favor selecciona una cita'
+  if (!f.medication_id) next.medication_id = 'Por favor selecciona un medicamento'
+  if (!f.dosage.trim()) next.dosage = 'La dosis es obligatoria'
+  if (!f.frequency) next.frequency = 'Por favor selecciona una frecuencia'
+  if (!f.duration.trim()) next.duration = 'La duración es obligatoria'
   return next
 }
 
@@ -77,13 +77,13 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
     })
   }
 
-  let submitLabel = prescription ? 'Update prescription' : 'Save prescription'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = prescription ? 'Actualizar receta' : 'Guardar receta'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={prescription ? 'Edit prescription' : 'Add prescription'}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={prescription ? 'Editar receta' : 'Agregar receta'}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        <Field label="Appointment" htmlFor="appointment_id" required error={errors.appointment_id}>
+        <Field label="Cita / Turno" htmlFor="appointment_id" required error={errors.appointment_id}>
           <Select
             id="appointment_id"
             value={form.appointment_id}
@@ -93,7 +93,7 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
               touch('appointment_id')
             }}
           >
-            <option value="">Select appointment</option>
+            <option value="">Seleccionar cita</option>
             {sortedAppointments.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.patient_first_name} {a.patient_last_name} - {formatDate(a.appointment_date)}
@@ -114,7 +114,7 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
           )}
         </Field>
 
-        <Field label="Medication" htmlFor="medication_id" required error={errors.medication_id}>
+        <Field label="Medicamento" htmlFor="medication_id" required error={errors.medication_id}>
           <Select
             id="medication_id"
             value={form.medication_id}
@@ -124,7 +124,7 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
               touch('medication_id')
             }}
           >
-            <option value="">Select medication</option>
+            <option value="">Seleccionar medicamento</option>
             {(medications ?? []).map((m) => (
               <option key={m.id} value={m.id}>
                 {m.name}
@@ -135,7 +135,7 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
         </Field>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Dosage" htmlFor="dosage" required error={errors.dosage}>
+          <Field label="Dosis" htmlFor="dosage" required error={errors.dosage}>
             <TextInput
               id="dosage"
               placeholder="e.g. 500mg"
@@ -145,7 +145,7 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
               onBlur={() => touch('dosage')}
             />
           </Field>
-          <Field label="Frequency" htmlFor="frequency" required error={errors.frequency}>
+          <Field label="Frecuencia" htmlFor="frequency" required error={errors.frequency}>
             <Select
               id="frequency"
               value={form.frequency}
@@ -155,7 +155,7 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
                 touch('frequency')
               }}
             >
-              <option value="">Select frequency</option>
+              <option value="">Seleccionar frecuencia</option>
               {FREQUENCIES.map((f) => (
                 <option key={f} value={f}>
                   {f}
@@ -166,7 +166,7 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Duration" htmlFor="duration" required error={errors.duration}>
+          <Field label="Duración" htmlFor="duration" required error={errors.duration}>
             <TextInput
               id="duration"
               placeholder="e.g. 7 days"
@@ -176,11 +176,11 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
               onBlur={() => touch('duration')}
             />
           </Field>
-          <Field label="Status" htmlFor="status">
+          <Field label="Estado" htmlFor="status">
             <Select id="status" value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}>
-              <option value="active">Active</option>
-              <option value="completed">Completed</option>
-              <option value="discontinued">Discontinued</option>
+              <option value="active">Activa</option>
+              <option value="completed">Completada</option>
+              <option value="discontinued">Discontinuada</option>
             </Select>
           </Field>
         </div>

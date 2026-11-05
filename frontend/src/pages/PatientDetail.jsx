@@ -31,7 +31,7 @@ function isAbnormalReport(report) {
   return (report.lab_values ?? []).some((v) => v.status?.toLowerCase() !== 'normal')
 }
 
-/** A bounded "N most recent, View all →" sub-section — used for every related-record
+/** A bounded "N most recent, Ver todos →" sub-section — used for every related-record
  * list below. Not the full EmptyState component: these sit inside a page that already
  * has content, not an empty-page state, so an empty section is just a muted line. */
 function RelatedSection({ icon: Icon, title, count, viewAllHref, emptyLabel, children }) {
@@ -44,7 +44,7 @@ function RelatedSection({ icon: Icon, title, count, viewAllHref, emptyLabel, chi
         </h2>
         {count > SHOWN && (
           <Link to={viewAllHref} className="text-xs font-semibold text-glow-b hover:underline">
-            View all →
+            Ver todos →
           </Link>
         )}
       </div>
@@ -122,18 +122,18 @@ export default function PatientDetail() {
     ),
     action: (
       <div className="flex gap-2">
-        <IconButton label="Edit patient" onClick={() => setEditOpen(true)} className="border border-glass-border">
+        <IconButton label="Editar paciente" onClick={() => setEditOpen(true)} className="border border-glass-border">
           <Pencil size={15} />
         </IconButton>
-        <IconButton label="Delete patient" onClick={() => setDeleteOpen(true)} className="border border-glass-border">
+        <IconButton label="Eliminar paciente" onClick={() => setDeleteOpen(true)} className="border border-glass-border">
           <Trash2 size={15} />
         </IconButton>
       </div>
     ),
   })
 
-  if (isLoading) return <div className="text-sm text-muted">Loading…</div>
-  if (!patient) return <div className="text-sm text-muted">Patient not found.</div>
+  if (isLoading) return <div className="text-sm text-muted">Cargando…</div>
+  if (!patient) return <div className="text-sm text-muted">Paciente no encontrado.</div>
 
   const age = patient.date_of_birth ? calculateAge(patient.date_of_birth) : null
 
@@ -143,54 +143,54 @@ export default function PatientDetail() {
         onClick={() => (location.key === 'default' ? navigate('/patients') : navigate(-1))}
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-white"
       >
-        <ArrowLeft size={15} /> Back
+        <ArrowLeft size={15} /> Volver
       </button>
 
       {/* One flat list — every field gets the same treatment, no field (gender
           included) singled out with special styling over the others. */}
       <div className="glass rounded-[20px] p-6">
         <dl className="grid grid-cols-3 gap-y-3 text-sm">
-          <dt className="font-semibold text-muted">Gender</dt>
-          <dd className="col-span-2">{patient.gender ?? 'Not specified'}</dd>
+          <dt className="font-semibold text-muted">Género</dt>
+          <dd className="col-span-2">{patient.gender ?? 'No especificado'}</dd>
 
-          <dt className="font-semibold text-muted">Date of birth</dt>
+          <dt className="font-semibold text-muted">Fecha de nacimiento</dt>
           <dd className="col-span-2">
-            {formatDateLong(patient.date_of_birth) ?? 'Not specified'}
-            {age !== null && <span className="text-muted"> ({age} years old)</span>}
+            {formatDateLong(patient.date_of_birth) ?? 'No especificado'}
+            {age !== null && <span className="text-muted"> ({age} años)</span>}
           </dd>
 
-          <dt className="font-semibold text-muted">Phone</dt>
+          <dt className="font-semibold text-muted">Teléfono</dt>
           <dd className="col-span-2">
             {patient.phone ? (
               <a href={`tel:${patient.phone}`} className="text-glow-b hover:underline">
                 {patient.phone}
               </a>
             ) : (
-              'Not provided'
+              'No proporcionado'
             )}
           </dd>
 
-          <dt className="font-semibold text-muted">Email</dt>
+          <dt className="font-semibold text-muted">Correo electrónico</dt>
           <dd className="col-span-2">
             {patient.email ? (
               <a href={`mailto:${patient.email}`} className="text-glow-b hover:underline">
                 {patient.email}
               </a>
             ) : (
-              'Not provided'
+              'No proporcionado'
             )}
           </dd>
 
           {patient.address && (
             <>
-              <dt className="font-semibold text-muted">Address</dt>
+              <dt className="font-semibold text-muted">Dirección</dt>
               <dd className="col-span-2">{patient.address}</dd>
             </>
           )}
 
           {(patient.emergency_contact_name || patient.emergency_contact_phone) && (
             <>
-              <dt className="font-semibold text-muted">Emergency contact</dt>
+              <dt className="font-semibold text-muted">Contacto de emergencia</dt>
               <dd className="col-span-2">
                 {[patient.emergency_contact_name, patient.emergency_contact_phone].filter(Boolean).join(' - ')}
               </dd>
@@ -199,7 +199,7 @@ export default function PatientDetail() {
 
           {patient.created_at && (
             <>
-              <dt className="font-semibold text-muted">Created</dt>
+              <dt className="font-semibold text-muted">Registrado el</dt>
               <dd className="col-span-2 text-muted">{formatDateTime(patient.created_at)}</dd>
             </>
           )}
@@ -209,10 +209,10 @@ export default function PatientDetail() {
       <div className="mt-4">
         <RelatedSection
           icon={Pill}
-          title="Active medications"
+          title="Medicamentos activos"
           count={activeMedications.length}
           viewAllHref={`/prescriptions?patient=${id}`}
-          emptyLabel="No active medications."
+          emptyLabel="Sin medicamentos activos."
         >
           {activeMedications.slice(0, SHOWN).map((p) => (
             <Link
@@ -230,10 +230,10 @@ export default function PatientDetail() {
 
         <RelatedSection
           icon={CalendarDays}
-          title="Recent appointments"
+          title="Citas recientes"
           count={appointments.length}
           viewAllHref={`/appointments?patient=${id}`}
-          emptyLabel="No appointments yet."
+          emptyLabel="Sin citas registradas aún."
         >
           {appointments.slice(0, SHOWN).map((a) => (
             <Link key={a.id} to={`/appointments/${a.id}`} className="flex items-start gap-3 px-5 py-3 text-sm text-text hover:bg-white/3 hover:text-glow-b">
@@ -254,10 +254,10 @@ export default function PatientDetail() {
 
         <RelatedSection
           icon={FileText}
-          title="Prescriptions"
+          title="Recetas"
           count={prescriptions.length}
           viewAllHref={`/prescriptions?patient=${id}`}
-          emptyLabel="No prescriptions yet."
+          emptyLabel="Sin recetas registradas aún."
         >
           {prescriptions.slice(0, SHOWN).map((p) => (
             <Link key={p.id} to={`/prescriptions/${p.id}`} className="flex items-center justify-between gap-3 px-5 py-3 text-sm text-text hover:bg-white/3 hover:text-glow-b">
@@ -274,10 +274,10 @@ export default function PatientDetail() {
 
         <RelatedSection
           icon={FlaskConical}
-          title="Lab reports"
+          title="Informes de laboratorio"
           count={labReports.length}
           viewAllHref={`/lab-reports?patient=${id}`}
-          emptyLabel="No lab reports yet."
+          emptyLabel="Sin informes de laboratorio aún."
         >
           {labReports.slice(0, SHOWN).map((r) => (
             <Link key={r.id} to={`/lab-reports/${r.id}`} className="flex items-center justify-between gap-3 px-5 py-3 text-sm text-text hover:bg-white/3 hover:text-glow-b">
@@ -294,10 +294,10 @@ export default function PatientDetail() {
 
         <RelatedSection
           icon={Scan}
-          title="Diagnostic studies"
+          title="Estudios diagnósticos"
           count={diagnosticStudies.length}
           viewAllHref={`/diagnostic-studies?patient=${id}`}
-          emptyLabel="No diagnostic studies yet."
+          emptyLabel="Sin estudios diagnósticos aún."
         >
           {diagnosticStudies.slice(0, SHOWN).map((s) => (
             <Link
@@ -309,7 +309,7 @@ export default function PatientDetail() {
                 <div className="font-medium">
                   <Badge>{s.study_type}</Badge>
                 </div>
-                <div className="mt-0.5 text-xs text-muted">{s.body_region || 'Not specified'}</div>
+                <div className="mt-0.5 text-xs text-muted">{s.body_region || 'No especificado'}</div>
               </div>
               <span className="font-mono text-xs text-muted">{formatDate(s.study_date)}</span>
             </Link>
@@ -329,7 +329,7 @@ export default function PatientDetail() {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete patient"
+        title="Eliminar paciente"
         description={`Delete "${patient.first_name} ${patient.last_name}"? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deletePatient.isPending}

@@ -53,7 +53,7 @@ export default function Prescriptions() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   usePageHeader({
-    title: 'Prescriptions',
+    title: 'Recetas',
     subtitle: 'Every prescription tied to an appointment',
     action: (
       <Button onClick={() => setAddOpen(true)}>
@@ -84,7 +84,7 @@ export default function Prescriptions() {
       notify('Prescription added')
       setAddOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save prescription', 'error')
+      notify(err.message || 'Error al guardar receta', 'error')
     }
   }
 
@@ -92,10 +92,10 @@ export default function Prescriptions() {
     if (!editTarget) return
     try {
       await updatePrescription.mutateAsync({ id: editTarget.id, data: payload })
-      notify('Prescription updated')
+      notify('Receta actualizada')
       setEditTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to save prescription', 'error')
+      notify(err.message || 'Error al guardar receta', 'error')
     }
   }
 
@@ -103,10 +103,10 @@ export default function Prescriptions() {
     if (!deleteTarget) return
     try {
       await deletePrescription.mutateAsync(deleteTarget.id)
-      notify('Prescription deleted')
+      notify('Receta eliminada')
       setDeleteTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to delete prescription', 'error')
+      notify(err.message || 'Error al eliminar receta', 'error')
     }
   }
 
@@ -140,17 +140,17 @@ export default function Prescriptions() {
       <div className="glass rounded-[20px]">
         <div className="flex items-center justify-between border-b border-glass-border px-5 py-3.75">
           <h2 className="text-[0.9rem] font-bold">
-            Prescription list{' '}
+            Lista de recetas{' '}
             <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{filtered.length}</span>
           </h2>
         </div>
 
         {isLoading ? (
-          <div className="p-5 text-sm text-muted">Loading…</div>
+          <div className="p-5 text-sm text-muted">Cargando…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={FileText}
-            title="No prescriptions found"
+            title="No se encontraron recetas"
             description={prescriptions?.length ? 'Try a different search.' : 'Add your first prescription to get started.'}
           />
         ) : (
@@ -185,9 +185,9 @@ export default function Prescriptions() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-glass-border bg-white/3 text-left font-mono text-[0.68rem] uppercase tracking-wide text-muted-2">
-                    <th className="px-5 py-2.5 font-semibold">Patient</th>
-                    <th className="px-5 py-2.5 font-semibold">Medication</th>
-                    <th className="px-5 py-2.5 font-semibold">Dosage</th>
+                    <th className="px-5 py-2.5 font-semibold">Paciente</th>
+                    <th className="px-5 py-2.5 font-semibold">Medicamento</th>
+                    <th className="px-5 py-2.5 font-semibold">Dosis</th>
                     <th className="px-5 py-2.5 font-semibold">Frequency</th>
                     <th className="px-5 py-2.5 font-semibold">Date</th>
                     <th className="px-5 py-2.5 font-semibold">Status</th>
@@ -244,7 +244,7 @@ export default function Prescriptions() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete prescription"
+        title="Eliminar receta"
         description={deleteTarget && `Delete this prescription for ${deleteTarget.medication_name}? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deletePrescription.isPending}

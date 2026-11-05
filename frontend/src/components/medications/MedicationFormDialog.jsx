@@ -92,7 +92,7 @@ function IngredientsInput({ value, onChange }) {
       {value.map((ing, i) => (
         <div key={ing._key} className="flex gap-2">
           <TextInput
-            placeholder="Ingredient name"
+            placeholder="Nombre del principio activo"
             value={ing.name}
             onChange={(e) => update(i, 'name', e.target.value)}
             className="flex-1"
@@ -109,7 +109,7 @@ function IngredientsInput({ value, onChange }) {
         </div>
       ))}
       <Button type="button" variant="ghost" onClick={() => onChange([...value, { _key: crypto.randomUUID(), name: '', dosage: '' }])} className="self-start">
-        <Plus size={14} /> Add ingredient
+        <Plus size={14} /> Agregar principio activo
       </Button>
     </div>
   )
@@ -117,7 +117,7 @@ function IngredientsInput({ value, onChange }) {
 
 function computeErrors(f) {
   const next = {}
-  if (!f.name.trim()) next.name = 'Medication name is required'
+  if (!f.name.trim()) next.name = 'El nombre del medicamento es obligatorio'
   return next
 }
 
@@ -141,11 +141,11 @@ export function MedicationFormDialog({ open, onOpenChange, medication, onSubmit,
     })
   }
 
-  let submitLabel = medication ? 'Update medication' : 'Save medication'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = medication ? 'Actualizar medicamento' : 'Guardar medicamento'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={medication ? 'Edit medication' : 'Add medication'}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={medication ? 'Editar medicamento' : 'Agregar medicamento'}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Name" htmlFor="name" required error={errors.name}>
@@ -157,12 +157,12 @@ export function MedicationFormDialog({ open, onOpenChange, medication, onSubmit,
               onBlur={() => touch('name')}
             />
           </Field>
-          <Field label="Generic name" htmlFor="generic_name">
+          <Field label="Nombre genérico" htmlFor="generic_name">
             <TextInput id="generic_name" value={form.generic_name} onChange={(e) => setForm((f) => ({ ...f, generic_name: e.target.value }))} />
           </Field>
         </div>
 
-        <Field label="Dosage forms" htmlFor="dosage_forms">
+        <Field label="Formas farmacéuticas" htmlFor="dosage_forms">
           <MultiSelect
             options={DOSAGE_FORM_OPTIONS}
             value={form.dosage_forms}
@@ -170,19 +170,19 @@ export function MedicationFormDialog({ open, onOpenChange, medication, onSubmit,
           />
         </Field>
 
-        <Field label="Strengths" htmlFor="strengths">
+        <Field label="Concentraciones" htmlFor="strengths">
           <TagInput value={form.strengths} onChange={(v) => setForm((f) => ({ ...f, strengths: v }))} placeholder="e.g. 500mg" />
         </Field>
 
-        <Field label="Active ingredients" htmlFor="active_ingredients">
+        <Field label="Principios activos" htmlFor="active_ingredients">
           <IngredientsInput value={form.active_ingredients} onChange={(v) => setForm((f) => ({ ...f, active_ingredients: v }))} />
         </Field>
 
-        <Field label="Manufacturer" htmlFor="manufacturer">
+        <Field label="Laboratorio / Fabricante" htmlFor="manufacturer">
           <TextInput id="manufacturer" value={form.manufacturer} onChange={(e) => setForm((f) => ({ ...f, manufacturer: e.target.value }))} />
         </Field>
 
-        <Field label="Description" htmlFor="description">
+        <Field label="Descripción" htmlFor="description">
           <Textarea id="description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
         </Field>
 

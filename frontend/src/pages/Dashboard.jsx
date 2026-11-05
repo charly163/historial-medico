@@ -52,11 +52,11 @@ function AppointmentsChart({ buckets }) {
   return (
     <div ref={wrapRef} className="px-5 pt-4 pb-3.5">
       <div className="font-mono text-[0.63rem] font-semibold uppercase tracking-[0.09em] text-muted-2">
-        Total logged
+        Total registrado
       </div>
       <div className="flex items-baseline gap-2.5">
         <span className="font-display text-[1.7rem] font-bold tracking-tight">{total}</span>
-        <span className="text-[0.78rem] text-muted">across recent visits</span>
+        <span className="text-[0.78rem] text-muted">en visitas recientes</span>
       </div>
       <svg
         viewBox={`0 0 ${w} ${h}`}
@@ -125,7 +125,7 @@ function AppointmentsChart({ buckets }) {
 export default function Dashboard() {
   const { user } = useAuth()
   const nameGreeting = user?.firstName ? `, ${user.firstName}` : ''
-  usePageHeader({ title: 'Dashboard', subtitle: `Welcome back${nameGreeting}` })
+  usePageHeader({ title: 'Panel de Control', subtitle: `Bienvenido de nuevo${nameGreeting}` })
   const { data: patients } = usePatients()
   const { data: doctors } = useDoctors()
   const { data: upcoming } = useUpcomingAppointments()
@@ -137,10 +137,10 @@ export default function Dashboard() {
   async function handleAddPatient(payload) {
     try {
       await createPatient.mutateAsync(payload)
-      notify('Patient added')
+      notify('Paciente agregado')
       setAddPatientOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save patient', 'error')
+      notify(err.message || 'Error al guardar paciente', 'error')
     }
   }
 
@@ -170,10 +170,10 @@ export default function Dashboard() {
       <section className="glass rounded-[20px]" aria-labelledby="roster-heading">
         <div className="flex items-center justify-between px-5 py-3.75 border-b border-glass-border">
           <h2 id="roster-heading" className="text-[0.9rem] font-bold">
-            Your patients
+            Tus pacientes
           </h2>
           <Link to="/patients" className="text-[0.76rem] font-semibold text-white/80 hover:text-white no-underline">
-            View all →
+            Ver todos →
           </Link>
         </div>
         <div className="flex gap-3 overflow-x-auto p-4">
@@ -192,8 +192,8 @@ export default function Dashboard() {
               <div className="mt-0.5 text-[0.74rem] text-muted">{p.gender}</div>
               <div className={`mt-2 text-[0.7rem] ${p.next ? 'font-semibold text-glow-b' : 'text-muted-2'}`}>
                 {p.next
-                  ? `Next: ${new Date(p.next.appointment_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
-                  : 'No upcoming appt'}
+                  ? `Próxima: ${new Date(p.next.appointment_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+                  : 'Sin citas próximas'}
               </div>
             </Link>
           ))}
@@ -203,7 +203,7 @@ export default function Dashboard() {
             className="flex w-42 shrink-0 flex-col items-center justify-center gap-1.5 rounded-2xl border border-dashed border-glass-border p-3.5 text-muted hover:border-glow-b hover:text-white"
           >
             <Plus size={18} />
-            <span className="text-[0.78rem] font-semibold">Add patient</span>
+            <span className="text-[0.78rem] font-semibold">Agregar paciente</span>
           </button>
         </div>
       </section>
@@ -221,7 +221,7 @@ export default function Dashboard() {
         <section className="glass rounded-[20px]" aria-labelledby="chart-heading">
           <div className="px-5 py-3.75 border-b border-glass-border">
             <h2 id="chart-heading" className="text-[0.9rem] font-bold">
-              Appointments, last {CHART_MONTHS} months
+              Citas de los últimos {CHART_MONTHS} meses
             </h2>
           </div>
           <AppointmentsChart buckets={buckets} />
@@ -236,16 +236,16 @@ export default function Dashboard() {
               {nextAppointment ? (
                 <>
                   <div className="glow-text font-display text-[1.5rem] font-bold">
-                    {daysUntil(nextAppointment.appointment_date)} days
+                    {daysUntil(nextAppointment.appointment_date)} días
                   </div>
                   <div className="text-[0.74rem] text-muted">
-                    Until {nextAppointment.patient_first_name}&rsquo;s {nextAppointment.type?.toLowerCase() ?? 'visit'}
+                    Para la consulta de {nextAppointment.patient_first_name}&rsquo;s {nextAppointment.type?.toLowerCase() ?? 'visit'}
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="glow-text font-display text-[1.5rem] font-bold">No appointments</div>
-                  <div className="text-[0.74rem] text-muted">Nothing scheduled right now</div>
+                  <div className="glow-text font-display text-[1.5rem] font-bold">Sin citas</div>
+                  <div className="text-[0.74rem] text-muted">No hay citas programadas actualmente</div>
                 </>
               )}
             </div>
@@ -256,7 +256,7 @@ export default function Dashboard() {
             </div>
             <div>
               <div className="font-display text-[1.2rem] font-bold">{patients?.length ?? '-'}</div>
-              <div className="text-[0.74rem] text-muted">Patients</div>
+              <div className="text-[0.74rem] text-muted">Pacientes</div>
             </div>
           </div>
           <div className="glass rounded-[20px] p-4 flex items-center gap-3">
@@ -265,7 +265,7 @@ export default function Dashboard() {
             </div>
             <div>
               <div className="font-display text-[1.2rem] font-bold">{doctors?.length ?? '-'}</div>
-              <div className="text-[0.74rem] text-muted">Doctors</div>
+              <div className="text-[0.74rem] text-muted">Médicos</div>
             </div>
           </div>
         </div>
@@ -274,7 +274,7 @@ export default function Dashboard() {
       <section className="glass rounded-[20px]" aria-labelledby="activity-heading">
         <div className="flex items-center justify-between px-5 py-3.75 border-b border-glass-border">
           <h2 id="activity-heading" className="text-[0.9rem] font-bold">
-            Recent activity
+            Actividad reciente
           </h2>
         </div>
         <div className="px-5 py-1">
@@ -285,7 +285,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="text-[0.85rem]">
-                  {a.type} completed for{' '}
+                  {a.type} completada para{' '}
                   <strong>
                     {a.patient_first_name} {a.patient_last_name}
                   </strong>
@@ -296,7 +296,7 @@ export default function Dashboard() {
               </div>
             </div>
           ))}
-          {!recentActivity.length && <p className="py-4 text-sm text-muted">No recent activity yet.</p>}
+          {!recentActivity.length && <p className="py-4 text-sm text-muted">No hay actividad reciente.</p>}
         </div>
       </section>
     </div>

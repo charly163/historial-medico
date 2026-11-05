@@ -34,11 +34,11 @@ export default function Patients() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   usePageHeader({
-    title: 'Patients',
-    subtitle: 'Everyone whose records live in Mediqux',
+    title: 'Pacientes',
+    subtitle: 'Historiales clínicos registrados en Mediqux',
     action: (
       <Button onClick={() => setAddOpen(true)}>
-        <Plus size={16} /> Add patient
+        <Plus size={16} /> Agregar paciente
       </Button>
     ),
   })
@@ -58,10 +58,10 @@ export default function Patients() {
   async function handleAdd(payload) {
     try {
       await createPatient.mutateAsync(payload)
-      notify('Patient added')
+      notify('Paciente agregado')
       setAddOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save patient', 'error')
+      notify(err.message || 'Error al guardar paciente', 'error')
     }
   }
 
@@ -69,10 +69,10 @@ export default function Patients() {
     if (!editTarget) return
     try {
       await updatePatient.mutateAsync({ id: editTarget.id, data: payload })
-      notify('Patient updated')
+      notify('Paciente actualizado')
       setEditTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to save patient', 'error')
+      notify(err.message || 'Error al guardar paciente', 'error')
     }
   }
 
@@ -80,10 +80,10 @@ export default function Patients() {
     if (!deleteTarget) return
     try {
       await deletePatient.mutateAsync(deleteTarget.id)
-      notify('Patient deleted')
+      notify('Paciente eliminado')
       setDeleteTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to delete patient', 'error')
+      notify(err.message || 'Error al eliminar paciente', 'error')
     }
   }
 
@@ -95,7 +95,7 @@ export default function Patients() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, phone, or email…"
+            placeholder="Buscar por nombre, teléfono o email…"
             className="w-full bg-transparent text-sm outline-none placeholder:text-muted-2"
           />
         </div>
@@ -109,17 +109,17 @@ export default function Patients() {
       <div className="glass rounded-[20px]">
         <div className="flex items-center justify-between border-b border-glass-border px-5 py-3.75">
           <h2 className="text-[0.9rem] font-bold">
-            Patient list <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{filtered.length}</span>
+            Lista de pacientes <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{filtered.length}</span>
           </h2>
         </div>
 
         {isLoading ? (
-          <div className="p-5 text-sm text-muted">Loading…</div>
+          <div className="p-5 text-sm text-muted">Cargando…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Users}
-            title="No patients found"
-            description={patients?.length ? 'Try a different search.' : 'Add your first patient to get started.'}
+            title="No se encontraron pacientes"
+            description={patients?.length ? 'Prueba con otra búsqueda.' : 'Agrega tu primer paciente para comenzar.'}
           />
         ) : (
           <>
@@ -139,7 +139,7 @@ export default function Patients() {
                     <div className="truncate font-semibold text-text">{p.first_name} {p.last_name}</div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                       {p.gender && <Badge tone={genderTone(p.gender)}>{p.gender}</Badge>}
-                      <span className="text-xs text-muted">{formatDate(p.date_of_birth) ?? 'DOB not specified'}</span>
+                      <span className="text-xs text-muted">{formatDate(p.date_of_birth) ?? 'Fecha nac. no especificada'}</span>
                     </div>
                     <div className="mt-1.5 flex flex-col gap-0.5 text-xs">
                       {p.phone && (
@@ -163,11 +163,11 @@ export default function Patients() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-glass-border bg-white/3 text-left font-mono text-[0.68rem] uppercase tracking-wide text-muted-2">
-                    <th className="px-5 py-2.5 font-semibold">Name</th>
-                    <th className="px-5 py-2.5 font-semibold">Date of birth</th>
-                    <th className="px-5 py-2.5 font-semibold">Gender</th>
-                    <th className="px-5 py-2.5 font-semibold">Phone</th>
-                    <th className="px-5 py-2.5 font-semibold">Email</th>
+                    <th className="px-5 py-2.5 font-semibold">Nombre</th>
+                    <th className="px-5 py-2.5 font-semibold">Fecha de nacimiento</th>
+                    <th className="px-5 py-2.5 font-semibold">Género</th>
+                    <th className="px-5 py-2.5 font-semibold">Teléfono</th>
+                    <th className="px-5 py-2.5 font-semibold">Correo</th>
                     <th className="px-5 py-2.5" />
                   </tr>
                 </thead>
@@ -179,7 +179,7 @@ export default function Patients() {
                           {p.first_name} {p.last_name}
                         </Link>
                       </td>
-                      <td className="px-5 py-3 font-mono text-muted">{formatDate(p.date_of_birth) ?? 'Not specified'}</td>
+                      <td className="px-5 py-3 font-mono text-muted">{formatDate(p.date_of_birth) ?? 'No especificado'}</td>
                       <td className="px-5 py-3">{p.gender ? <Badge tone={genderTone(p.gender)}>{p.gender}</Badge> : '-'}</td>
                       <td className="px-5 py-3">
                         {p.phone ? (
@@ -187,7 +187,7 @@ export default function Patients() {
                             {p.phone}
                           </a>
                         ) : (
-                          <span className="text-muted-2">Not provided</span>
+                          <span className="text-muted-2">No proporcionado</span>
                         )}
                       </td>
                       <td className="px-5 py-3">
@@ -196,7 +196,7 @@ export default function Patients() {
                             {p.email}
                           </a>
                         ) : (
-                          <span className="text-muted-2">Not provided</span>
+                          <span className="text-muted-2">No proporcionado</span>
                         )}
                       </td>
                       <td className="px-5 py-3">
@@ -234,9 +234,9 @@ export default function Patients() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete patient"
+        title="Eliminar paciente"
         description={
-          deleteTarget && `Delete "${deleteTarget.first_name} ${deleteTarget.last_name}"? This cannot be undone.`
+          deleteTarget && `¿Eliminar a "${deleteTarget.first_name} ${deleteTarget.last_name}"? Esta acción no se puede deshacer.`
         }
         onConfirm={handleDelete}
         pending={deletePatient.isPending}

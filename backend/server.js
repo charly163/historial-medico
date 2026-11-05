@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-require('dotenv').config({ quiet: true });
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env'), quiet: true });
 
 const rateLimit = require('express-rate-limit');
 const logger = require('./src/utils/logger');
@@ -24,7 +24,7 @@ const authLimiter = rateLimit({
 });
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.APP_PORT || process.env.PORT || 3000;
 
 // The backend is never exposed directly to the host in either dev or prod
 // (Caddy fronts it in prod, Vite's dev proxy fronts it in dev) — trusting

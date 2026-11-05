@@ -55,9 +55,9 @@ export default function Login() {
     return <Navigate to={destination} replace />
   }
 
-  let subtitle = 'Sign in to your records'
-  if (checkingSetup) subtitle = 'Loading…'
-  else if (needsSetup) subtitle = 'Create your admin account'
+  let subtitle = 'Inicia sesión en tus registros'
+  if (checkingSetup) subtitle = 'Cargando…'
+  else if (needsSetup) subtitle = 'Crea tu cuenta de administrador'
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-bg text-text flex items-center justify-center p-6">
@@ -100,8 +100,8 @@ function fieldClass() {
 
 function LoginForm({ login, onDone, destination }) {
   const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const [password, setContraseña] = useState('')
+  const [showContraseña, setShowContraseña] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -109,7 +109,7 @@ function LoginForm({ login, onDone, destination }) {
     e.preventDefault()
     setError('')
     if (!username || !password) {
-      setError('Enter both username and password.')
+      setError('Ingresa usuario y contraseña.')
       return
     }
     setLoading(true)
@@ -117,7 +117,7 @@ function LoginForm({ login, onDone, destination }) {
       await login(username, password)
       onDone(destination)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Login failed. Please try again.')
+      setError(err instanceof ApiError ? err.message : 'Error al iniciar sesión. Por favor intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -127,7 +127,7 @@ function LoginForm({ login, onDone, destination }) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="username" className="text-xs font-semibold uppercase tracking-wide text-muted">
-          Username or email
+          Usuario o correo electrónico
         </label>
         <input
           id="username"
@@ -141,25 +141,25 @@ function LoginForm({ login, onDone, destination }) {
 
       <div className="flex flex-col gap-1.5">
         <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wide text-muted">
-          Password
+          Contraseña
         </label>
         <div className="relative">
           <input
             id="password"
             name="password"
-            type={showPassword ? 'text' : 'password'}
+            type={showContraseña ? 'text' : 'password'}
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setContraseña(e.target.value)}
             className={`w-full pr-10 ${fieldClass()}`}
           />
           <button
             type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            onClick={() => setShowContraseña((v) => !v)}
+            aria-label={showContraseña ? 'Hide password' : 'Show password'}
             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-white"
           >
-            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            {showContraseña ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
       </div>
@@ -175,7 +175,7 @@ function LoginForm({ login, onDone, destination }) {
         disabled={loading}
         className="glow-gradient mt-1 rounded-[10px] py-2.5 text-sm font-semibold text-white disabled:opacity-60"
       >
-        {loading ? 'Signing in…' : 'Sign in'}
+        {loading ? 'Iniciando sesión…' : 'Iniciar sesión'}
       </button>
     </form>
   )
@@ -193,14 +193,14 @@ function SetupForm({ signup, onDone, destination }) {
 
   function validate() {
     const next = {}
-    if (!form.firstName.trim()) next.firstName = 'First name is required'
-    if (!form.lastName.trim()) next.lastName = 'Last name is required'
-    if (!form.username.trim()) next.username = 'Username is required'
-    if (!form.email.trim()) next.email = 'Email is required'
-    else if (!isValidEmail(form.email.trim())) next.email = 'Please enter a valid email address'
-    if (!form.password) next.password = 'Password is required'
-    else if (form.password.length < 6) next.password = 'Password must be at least 6 characters'
-    if (form.confirm !== form.password) next.confirm = 'Passwords do not match'
+    if (!form.firstName.trim()) next.firstName = 'El nombre es obligatorio'
+    if (!form.lastName.trim()) next.lastName = 'El apellido es obligatorio'
+    if (!form.username.trim()) next.username = 'El nombre de usuario es obligatorio'
+    if (!form.email.trim()) next.email = 'El correo electrónico es obligatorio'
+    else if (!isValidEmail(form.email.trim())) next.email = 'Por favor ingresa un correo electrónico válido'
+    if (!form.password) next.password = 'Contraseña is required'
+    else if (form.password.length < 6) next.password = 'Contraseña must be at least 6 characters'
+    if (form.confirm !== form.password) next.confirm = 'Contraseñas do not match'
     setErrors(next)
     return Object.keys(next).length === 0
   }
@@ -220,7 +220,7 @@ function SetupForm({ signup, onDone, destination }) {
       })
       onDone(destination)
     } catch (err) {
-      setSubmitError(err instanceof ApiError ? err.message : 'Could not create the account. Please try again.')
+      setSubmitError(err instanceof ApiError ? err.message : 'No se pudo crear la cuenta. Por favor intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -229,29 +229,29 @@ function SetupForm({ signup, onDone, destination }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
       <p className="text-sm text-muted">
-        No accounts exist yet. Create the first one — it becomes the admin account for this installation.
+        No existen cuentas aún. Crea la primera cuenta — será la cuenta administradora de esta instalación.
       </p>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="First name" htmlFor="firstName" required error={errors.firstName}>
+        <Field label="Nombre" htmlFor="firstName" required error={errors.firstName}>
           <TextInput id="firstName" autoComplete="given-name" value={form.firstName} error={errors.firstName} onChange={set('firstName')} />
         </Field>
-        <Field label="Last name" htmlFor="lastName" required error={errors.lastName}>
+        <Field label="Apellido" htmlFor="lastName" required error={errors.lastName}>
           <TextInput id="lastName" autoComplete="family-name" value={form.lastName} error={errors.lastName} onChange={set('lastName')} />
         </Field>
       </div>
 
-      <Field label="Username" htmlFor="setupUsername" required error={errors.username}>
+      <Field label="Nombre de usuario" htmlFor="setupUsername" required error={errors.username}>
         <TextInput id="setupUsername" autoComplete="username" value={form.username} error={errors.username} onChange={set('username')} />
       </Field>
 
-      <Field label="Email" htmlFor="email" required error={errors.email}>
+      <Field label="Correo electrónico" htmlFor="email" required error={errors.email}>
         <TextInput id="email" type="email" autoComplete="email" value={form.email} error={errors.email} onChange={set('email')} />
       </Field>
 
-      <Field label="Password" htmlFor="setupPassword" required error={errors.password}>
+      <Field label="Contraseña" htmlFor="setupContraseña" required error={errors.password}>
         <TextInput
-          id="setupPassword"
+          id="setupContraseña"
           type="password"
           autoComplete="new-password"
           value={form.password}
@@ -260,7 +260,7 @@ function SetupForm({ signup, onDone, destination }) {
         />
       </Field>
 
-      <Field label="Confirm password" htmlFor="confirm" required error={errors.confirm}>
+      <Field label="Confirmar contraseña" htmlFor="confirm" required error={errors.confirm}>
         <TextInput
           id="confirm"
           type="password"
@@ -282,7 +282,7 @@ function SetupForm({ signup, onDone, destination }) {
         disabled={loading}
         className="glow-gradient mt-1 rounded-[10px] py-2.5 text-sm font-semibold text-white disabled:opacity-60"
       >
-        {loading ? 'Creating account…' : 'Create admin account'}
+        {loading ? 'Creando cuenta…' : 'Crear cuenta de administrador'}
       </button>
     </form>
   )

@@ -23,9 +23,9 @@ function toForm(doctor) {
 
 function computeErrors(f) {
   const next = {}
-  if (!f.first_name.trim()) next.first_name = 'First name is required'
-  if (!f.last_name.trim()) next.last_name = 'Last name is required'
-  if (!isValidEmail(f.email.trim())) next.email = 'Please enter a valid email address'
+  if (!f.first_name.trim()) next.first_name = 'El nombre es obligatorio'
+  if (!f.last_name.trim()) next.last_name = 'El apellido es obligatorio'
+  if (!isValidEmail(f.email.trim())) next.email = 'Por favor ingresa un correo electrónico válido'
   if (!isValidPhone(f.phone.trim())) next.phone = 'Phone number can only contain numbers, +, spaces, and hyphens'
   return next
 }
@@ -56,14 +56,14 @@ export function DoctorFormDialog({ open, onOpenChange, doctor, onSubmit, saving 
     return { value: i.id, label: `${i.name}${typeSuffix}` }
   })
 
-  let submitLabel = doctor ? 'Update doctor' : 'Save doctor'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = doctor ? 'Actualizar médico' : 'Guardar médico'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={doctor ? 'Edit doctor' : 'Add new doctor'}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={doctor ? 'Editar médico' : 'Agregar nuevo médico'}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="First name" htmlFor="first_name" required error={errors.first_name}>
+          <Field label="Nombre" htmlFor="first_name" required error={errors.first_name}>
             <TextInput
               id="first_name"
               value={form.first_name}
@@ -72,7 +72,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctor, onSubmit, saving 
               onBlur={() => touch('first_name')}
             />
           </Field>
-          <Field label="Last name" htmlFor="last_name" required error={errors.last_name}>
+          <Field label="Apellido" htmlFor="last_name" required error={errors.last_name}>
             <TextInput
               id="last_name"
               value={form.last_name}
@@ -84,10 +84,10 @@ export function DoctorFormDialog({ open, onOpenChange, doctor, onSubmit, saving 
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Specialty" htmlFor="specialty">
+          <Field label="Especialidad" htmlFor="specialty">
             <TextInput id="specialty" value={form.specialty} onChange={(e) => setForm((f) => ({ ...f, specialty: e.target.value }))} />
           </Field>
-          <Field label="License number" htmlFor="license_number">
+          <Field label="Número de matrícula" htmlFor="license_number">
             <TextInput
               id="license_number"
               value={form.license_number}
@@ -97,7 +97,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctor, onSubmit, saving 
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Phone" htmlFor="phone" error={errors.phone}>
+          <Field label="Teléfono" htmlFor="phone" error={errors.phone}>
             <TextInput
               id="phone"
               value={form.phone}
@@ -106,7 +106,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctor, onSubmit, saving 
               onBlur={() => touch('phone')}
             />
           </Field>
-          <Field label="Email" htmlFor="email" error={errors.email}>
+          <Field label="Correo electrónico" htmlFor="email" error={errors.email}>
             <TextInput
               id="email"
               type="email"
@@ -118,7 +118,7 @@ export function DoctorFormDialog({ open, onOpenChange, doctor, onSubmit, saving 
           </Field>
         </div>
 
-        <Field label="Institutions" htmlFor="institutions">
+        <Field label="Instituciones" htmlFor="institutions">
           <MultiSelect
             options={institutionOptions}
             value={form.institution_ids}

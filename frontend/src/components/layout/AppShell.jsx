@@ -40,19 +40,19 @@ function useConnectionStatus() {
 }
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/patients', label: 'Patients', icon: Users },
-  { to: '/institutions', label: 'Institutions', icon: Building2 },
-  { to: '/doctors', label: 'Doctors', icon: Stethoscope },
-  { to: '/appointments', label: 'Appointments', icon: CalendarDays },
-  { to: '/conditions', label: 'Conditions', icon: ClipboardList },
-  { to: '/medications', label: 'Medications', icon: Pill },
-  { to: '/prescriptions', label: 'Prescriptions', icon: FileText },
+  { to: '/', label: 'Panel de Control', icon: LayoutDashboard, end: true },
+  { to: '/patients', label: 'Pacientes', icon: Users },
+  { to: '/institutions', label: 'Instituciones', icon: Building2 },
+  { to: '/doctors', label: 'Médicos', icon: Stethoscope },
+  { to: '/appointments', label: 'Citas', icon: CalendarDays },
+  { to: '/conditions', label: 'Diagnósticos', icon: ClipboardList },
+  { to: '/medications', label: 'Medicamentos', icon: Pill },
+  { to: '/prescriptions', label: 'Recetas', icon: FileText },
 ]
 
 const RECORD_ITEMS = [
-  { to: '/lab-reports', label: 'Lab Reports', icon: FlaskConical },
-  { to: '/diagnostic-studies', label: 'Diagnostic Studies', icon: Activity },
+  { to: '/lab-reports', label: 'Informes de Laboratorio', icon: FlaskConical },
+  { to: '/diagnostic-studies', label: 'Estudios Diagnósticos', icon: Activity },
 ]
 
 function SidebarNav({ collapsed, isAdmin, closeSidebar }) {
@@ -80,9 +80,9 @@ function SidebarNav({ collapsed, isAdmin, closeSidebar }) {
           <div className={`px-2.5 pt-3.5 pb-1.5 text-[0.65rem] font-bold uppercase tracking-[0.09em] text-muted-2 ${collapsed ? 'lg:hidden' : ''}`}>
             Admin
           </div>
-          <NavLink to="/users" onClick={closeSidebar} title="Users" className={navClass(collapsed)}>
+          <NavLink to="/users" onClick={closeSidebar} title="Usuarios" className={navClass(collapsed)}>
             <Users size={15} className="shrink-0 opacity-80" />
-            <span className={collapsed ? 'lg:hidden' : ''}>Users</span>
+            <span className={collapsed ? 'lg:hidden' : ''}>Usuarios</span>
           </NavLink>
         </>
       )}
@@ -91,7 +91,7 @@ function SidebarNav({ collapsed, isAdmin, closeSidebar }) {
 }
 
 function CollapseToggle({ collapsed, onToggle }) {
-  const label = collapsed ? 'Expand menu' : 'Collapse menu'
+  const label = collapsed ? 'Expandir menú' : 'Contraer menú'
   const Icon = collapsed ? ChevronsRight : ChevronsLeft
   return (
     <button
@@ -102,7 +102,7 @@ function CollapseToggle({ collapsed, onToggle }) {
       className={`hidden lg:flex items-center gap-2.5 w-full px-2.5 py-2 rounded-[10px] text-sm font-medium text-muted hover:text-white ${collapsed ? 'lg:justify-center' : ''}`}
     >
       <Icon size={15} className="shrink-0 opacity-80" />
-      <span className={collapsed ? 'lg:hidden' : ''}>Collapse menu</span>
+      <span className={collapsed ? 'lg:hidden' : ''}>Contraer menú</span>
     </button>
   )
 }
@@ -212,7 +212,7 @@ export default function AppShell() {
             <button
               type="button"
               onClick={closeSidebar}
-              aria-label="Close menu"
+              aria-label="Cerrar menú"
               className="flex h-7 w-7 items-center justify-center rounded-[8px] text-muted hover:text-white lg:hidden"
             >
               <X size={16} />
@@ -226,7 +226,7 @@ export default function AppShell() {
           <CollapseToggle collapsed={collapsed} onToggle={toggleCollapsed} />
 
           <div className="border-t border-glass-border pt-3">
-            <div className={`flex items-center gap-1.5 px-1.5 pb-2 ${collapsed ? 'lg:justify-center' : ''}`} title={isOnline ? undefined : "Can't reach the server"}>
+            <div className={`flex items-center gap-1.5 px-1.5 pb-2 ${collapsed ? 'lg:justify-center' : ''}`} title={isOnline ? undefined : "No se puede conectar al servidor"}>
               <span
                 className={`h-1.75 w-1.75 rounded-full ${
                   isOnline ? 'bg-good shadow-[0_0_8px_var(--color-good)] animate-pulse' : 'bg-red-400 shadow-[0_0_8px_#f87171]'
@@ -235,7 +235,7 @@ export default function AppShell() {
               <span
                 className={`text-[0.7rem] font-semibold uppercase tracking-[0.04em] ${isOnline ? 'text-good' : 'text-red-400'} ${collapsed ? 'lg:hidden' : ''}`}
               >
-                {isOnline ? 'System online' : 'System offline'}
+                {isOnline ? 'Sistema en línea' : 'Sistema desconectado'}
               </span>
             </div>
             {version && (
@@ -255,7 +255,7 @@ export default function AppShell() {
               <button
                 type="button"
                 onClick={() => setSidebarOpen(true)}
-                aria-label="Open menu"
+                aria-label="Abrir menú"
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-glass-border bg-white/6 text-muted hover:text-white lg:hidden"
               >
                 <Menu size={16} />
@@ -277,9 +277,9 @@ export default function AppShell() {
               {NOTIFICATIONS_ENABLED && (
                 <button
                   type="button"
-                  onClick={() => notify('Notifications are coming soon. Appointment and follow-up reminders are planned.')}
-                  aria-label="Notifications (coming soon)"
-                  title="Notifications (coming soon)"
+                  onClick={() => notify('Las notificaciones estarán disponibles pronto. Se planean recordatorios de citas y seguimientos.')}
+                  aria-label="Notificaciones (pronto)"
+                  title="Notificaciones (pronto)"
                   className="flex h-8 w-8 items-center justify-center rounded-[9px] border border-glass-border bg-white/6 text-muted hover:text-white"
                 >
                   <Bell size={15} />
@@ -289,7 +289,7 @@ export default function AppShell() {
                 <DropdownMenu.Trigger asChild>
                   <button
                     type="button"
-                    aria-label="Account menu"
+                    aria-label="Menú de cuenta"
                     className="glow-gradient flex h-8 w-8 items-center justify-center rounded-full text-[0.72rem] font-bold text-white"
                   >
                     {initials || <Users size={14} />}

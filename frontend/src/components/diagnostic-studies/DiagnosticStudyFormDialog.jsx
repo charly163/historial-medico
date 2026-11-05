@@ -46,9 +46,9 @@ function toFields(study) {
 
 function computeErrors(f) {
   const next = {}
-  if (!f.patient_id) next.patient_id = 'Please select a patient'
-  if (!f.study_type) next.study_type = 'Please select a study type'
-  if (!f.study_date) next.study_date = 'Please select a study date'
+  if (!f.patient_id) next.patient_id = 'Por favor selecciona un paciente'
+  if (!f.study_type) next.study_type = 'Por favor selecciona un tipo de estudio'
+  if (!f.study_date) next.study_date = 'Por favor selecciona la fecha del estudio'
   return next
 }
 
@@ -106,14 +106,14 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
     onSubmit(formData)
   }
 
-  let submitLabel = study ? 'Update study' : 'Save study'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = study ? 'Actualizar estudio' : 'Guardar estudio'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={study ? 'Edit diagnostic study' : 'Add diagnostic study'} size="lg">
+    <Dialog open={open} onOpenChange={onOpenChange} title={study ? 'Editar estudio diagnóstico' : 'Agregar estudio diagnóstico'} size="lg">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Patient" htmlFor="patient_id" required error={errors.patient_id}>
+          <Field label="Paciente" htmlFor="patient_id" required error={errors.patient_id}>
             <Select
               id="patient_id"
               value={fields.patient_id}
@@ -123,7 +123,7 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
                 touch('patient_id')
               }}
             >
-              <option value="">Select patient</option>
+              <option value="">Selecciona un paciente…</option>
               {(patients ?? []).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.first_name} {p.last_name}
@@ -131,7 +131,7 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
               ))}
             </Select>
           </Field>
-          <Field label="Study type" htmlFor="study_type" required error={errors.study_type}>
+          <Field label="Tipo de estudio" htmlFor="study_type" required error={errors.study_type}>
             <Select
               id="study_type"
               value={fields.study_type}
@@ -152,7 +152,7 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Study date" htmlFor="study_date" required error={errors.study_date}>
+          <Field label="Fecha del estudio" htmlFor="study_date" required error={errors.study_date}>
             <TextInput
               id="study_date"
               type="date"
@@ -162,7 +162,7 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
               onBlur={() => touch('study_date')}
             />
           </Field>
-          <Field label="Body region" htmlFor="body_region">
+          <Field label="Región anatómica / Zona" htmlFor="body_region">
             <TextInput
               id="body_region"
               placeholder="e.g. Brain, Chest, Abdomen"
@@ -173,13 +173,13 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Ordering physician" htmlFor="ordering_physician_id">
+          <Field label="Médico solicitante" htmlFor="ordering_physician_id">
             <Select
               id="ordering_physician_id"
               value={fields.ordering_physician_id}
               onChange={(e) => setFields((f) => ({ ...f, ordering_physician_id: e.target.value }))}
             >
-              <option value="">Not specified</option>
+              <option value="">No especificado</option>
               {(doctors ?? []).map((d) => (
                 <option key={d.id} value={d.id}>
                   Dr. {d.first_name} {d.last_name}
@@ -194,7 +194,7 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
               value={fields.performing_physician_id}
               onChange={(e) => setFields((f) => ({ ...f, performing_physician_id: e.target.value }))}
             >
-              <option value="">Not specified</option>
+              <option value="">No especificado</option>
               {(doctors ?? []).map((d) => (
                 <option key={d.id} value={d.id}>
                   Dr. {d.first_name} {d.last_name}
@@ -207,7 +207,7 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
 
         <Field label="Institution / imaging center" htmlFor="institution_id">
           <Select id="institution_id" value={fields.institution_id} onChange={(e) => setFields((f) => ({ ...f, institution_id: e.target.value }))}>
-            <option value="">Not specified</option>
+            <option value="">No especificado</option>
             {(institutions ?? []).map((i) => (
               <option key={i.id} value={i.id}>
                 {i.name}
@@ -229,7 +229,7 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
           />
         </Field>
 
-        <Field label="Clinical indication" htmlFor="clinical_indication">
+        <Field label="Indicación clínica" htmlFor="clinical_indication">
           <Textarea
             id="clinical_indication"
             rows={2}
@@ -239,7 +239,7 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
           />
         </Field>
 
-        <Field label="Findings" htmlFor="findings">
+        <Field label="Hallazgos / Resultados" htmlFor="findings">
           <Textarea id="findings" rows={4} value={fields.findings} onChange={(e) => setFields((f) => ({ ...f, findings: e.target.value }))} />
         </Field>
 
@@ -247,7 +247,7 @@ export function DiagnosticStudyFormDialog({ open, onOpenChange, study, onSubmit,
           <Textarea id="conclusion" rows={2} value={fields.conclusion} onChange={(e) => setFields((f) => ({ ...f, conclusion: e.target.value }))} />
         </Field>
 
-        <Field label="Notes" htmlFor="notes">
+        <Field label="Notas" htmlFor="notes">
           <Textarea id="notes" rows={2} value={fields.notes} onChange={(e) => setFields((f) => ({ ...f, notes: e.target.value }))} />
         </Field>
 

@@ -50,11 +50,11 @@ export default function Appointments() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   usePageHeader({
-    title: 'Appointments',
-    subtitle: 'Every visit, scheduled or past',
+    title: 'Citas',
+    subtitle: 'Historial de visitas programadas y pasadas',
     action: (
       <Button onClick={() => setAddOpen(true)}>
-        <Plus size={16} /> Schedule appointment
+        <Plus size={16} /> Agendar cita
       </Button>
     ),
   })
@@ -80,10 +80,10 @@ export default function Appointments() {
   async function handleAdd(payload) {
     try {
       await createAppointment.mutateAsync(payload)
-      notify('Appointment scheduled')
+      notify('Cita agendada')
       setAddOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save appointment', 'error')
+      notify(err.message || 'Error al guardar la cita', 'error')
     }
   }
 
@@ -91,10 +91,10 @@ export default function Appointments() {
     if (!editTarget) return
     try {
       await updateAppointment.mutateAsync({ id: editTarget.id, data: payload })
-      notify('Appointment updated')
+      notify('Cita actualizada')
       setEditTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to save appointment', 'error')
+      notify(err.message || 'Error al guardar la cita', 'error')
     }
   }
 
@@ -102,10 +102,10 @@ export default function Appointments() {
     if (!deleteTarget) return
     try {
       await deleteAppointment.mutateAsync(deleteTarget.id)
-      notify('Appointment deleted')
+      notify('Cita eliminada')
       setDeleteTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to delete appointment', 'error')
+      notify(err.message || 'Error al eliminar la cita', 'error')
     }
   }
 
@@ -139,18 +139,18 @@ export default function Appointments() {
       <div className="glass rounded-[20px]">
         <div className="flex items-center justify-between border-b border-glass-border px-5 py-3.75">
           <h2 className="text-[0.9rem] font-bold">
-            Appointment list{' '}
+            Lista de citas{' '}
             <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{filtered.length}</span>
           </h2>
         </div>
 
         {isLoading ? (
-          <div className="p-5 text-sm text-muted">Loading…</div>
+          <div className="p-5 text-sm text-muted">Cargando…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={CalendarDays}
-            title="No appointments found"
-            description={appointments?.length ? 'Try a different search.' : 'Schedule your first appointment to get started.'}
+            title="No se encontraron citas"
+            description={appointments?.length ? 'Prueba con otra búsqueda.' : 'Agenda tu primera cita para comenzar.'}
           />
         ) : (
           <>
@@ -174,7 +174,7 @@ export default function Appointments() {
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                       <Badge tone={a.status}>{statusLabel(a.status)}</Badge>
-                      {a.type && <span className="text-xs text-muted">{a.type}</span>}
+                      {a.type && <span className="text-xs text-muted">{translateAppointmentType(a.type)}</span>}
                     </div>
                     {a.doctor_first_name && (
                       <div className="mt-1.5 text-xs text-muted">
@@ -191,12 +191,12 @@ export default function Appointments() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-glass-border bg-white/3 text-left font-mono text-[0.68rem] uppercase tracking-wide text-muted-2">
-                    <th className="px-5 py-2.5 font-semibold">Date</th>
-                    <th className="px-5 py-2.5 font-semibold">Patient</th>
-                    <th className="px-5 py-2.5 font-semibold">Doctor</th>
-                    <th className="px-5 py-2.5 font-semibold">Institution</th>
-                    <th className="px-5 py-2.5 font-semibold">Type</th>
-                    <th className="px-5 py-2.5 font-semibold">Status</th>
+                    <th className="px-5 py-2.5 font-semibold">Fecha</th>
+                    <th className="px-5 py-2.5 font-semibold">Paciente</th>
+                    <th className="px-5 py-2.5 font-semibold">Médico</th>
+                    <th className="px-5 py-2.5 font-semibold">Institución</th>
+                    <th className="px-5 py-2.5 font-semibold">Tipo</th>
+                    <th className="px-5 py-2.5 font-semibold">Estado</th>
                     <th className="px-5 py-2.5" />
                   </tr>
                 </thead>
@@ -218,11 +218,11 @@ export default function Appointments() {
                             Dr. {a.doctor_first_name} {a.doctor_last_name}
                           </>
                         ) : (
-                          'Not assigned'
+                          'No asignado'
                         )}
                       </td>
-                      <td className="px-5 py-3 text-muted">{a.institution_name || 'Not specified'}</td>
-                      <td className="px-5 py-3 text-muted">{a.type || 'General'}</td>
+                      <td className="px-5 py-3 text-muted">{a.institution_name || 'No especificado'}</td>
+                      <td className="px-5 py-3 text-muted">{translateAppointmentType(a.type)}</td>
                       <td className="px-5 py-3">
                         <Badge tone={a.status}>{statusLabel(a.status)}</Badge>
                       </td>
@@ -259,7 +259,7 @@ export default function Appointments() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete appointment"
+        title="Eliminar cita"
         description={deleteTarget && `Delete the appointment on ${formatDate(deleteTarget.appointment_date)}? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deleteAppointment.isPending}

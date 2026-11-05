@@ -27,9 +27,9 @@ function toForm(condition) {
 
 function computeErrors(f) {
   const next = {}
-  if (!f.name.trim()) next.name = 'Condition name is required'
+  if (!f.name.trim()) next.name = 'El nombre de la condición es obligatorio'
   if (f.icd_code.trim() && !ICD_REGEX.test(f.icd_code.trim())) {
-    next.icd_code = 'ICD code should look like A12 or A12.34'
+    next.icd_code = 'El código CIE-10 debe tener el formato A12 o A12.34'
   }
   return next
 }
@@ -55,13 +55,13 @@ export function ConditionFormDialog({ open, onOpenChange, condition, onSubmit, s
     })
   }
 
-  let submitLabel = condition ? 'Update condition' : 'Save condition'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = condition ? 'Actualizar diagnóstico' : 'Guardar diagnóstico'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={condition ? 'Edit condition' : 'Add medical condition'}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={condition ? 'Editar diagnóstico' : 'Agregar condición médica'}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        <Field label="Name" htmlFor="name" required error={errors.name}>
+        <Field label="Nombre" htmlFor="name" required error={errors.name}>
           <TextInput
             id="name"
             value={form.name}
@@ -71,12 +71,12 @@ export function ConditionFormDialog({ open, onOpenChange, condition, onSubmit, s
           />
         </Field>
 
-        <Field label="Description" htmlFor="description">
+        <Field label="Descripción" htmlFor="description">
           <Textarea id="description" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
         </Field>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="ICD-10 code" htmlFor="icd_code" error={errors.icd_code}>
+          <Field label="Código CIE-10" htmlFor="icd_code" error={errors.icd_code}>
             <TextInput
               id="icd_code"
               placeholder="A12.34"
@@ -86,9 +86,9 @@ export function ConditionFormDialog({ open, onOpenChange, condition, onSubmit, s
               onBlur={() => touch('icd_code')}
             />
           </Field>
-          <Field label="Category" htmlFor="category">
+          <Field label="Categoría" htmlFor="category">
             <Select id="category" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
-              <option value="">Select category</option>
+              <option value="">Seleccionar categoría</option>
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -98,18 +98,18 @@ export function ConditionFormDialog({ open, onOpenChange, condition, onSubmit, s
           </Field>
         </div>
 
-        <Field label="Severity" htmlFor="severity">
+        <Field label="Gravedad" htmlFor="severity">
           <Select id="severity" value={form.severity} onChange={(e) => setForm((f) => ({ ...f, severity: e.target.value }))}>
-            <option value="">Not set</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
+            <option value="">No establecida</option>
+            <option value="Low">Baja</option>
+            <option value="Medium">Media</option>
+            <option value="High">Alta</option>
           </Select>
         </Field>
 
         <div className="mt-2 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" disabled={saving}>
             {submitLabel}

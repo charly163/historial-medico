@@ -13,6 +13,44 @@ import { usePageHeader } from '../lib/pageHeader'
 
 const { useList, useCreate, useUpdate, useDelete } = createResourceHooks('conditions', '/conditions')
 
+export const CATEGORY_LABELS = {
+  Cardiovascular: 'Cardiovascular',
+  Respiratory: 'Respiratorio',
+  Neurological: 'Neurológico',
+  Gastrointestinal: 'Gastrointestinal',
+  Endocrine: 'Endocrino',
+  Musculoskeletal: 'Musculoesquelético',
+  Dermatological: 'Dermatológico',
+  Psychiatric: 'Psiquiátrico',
+  'Infectious Disease': 'Enf. Infecciosa',
+  Oncological: 'Oncológico',
+  Hematological: 'Hematológico',
+  Renal: 'Renal',
+  Ophthalmological: 'Oftalmológico',
+  ENT: 'ORL',
+  Gynecological: 'Ginecológico',
+  Pediatric: 'Pediátrico',
+  Emergency: 'Urgencia',
+  Other: 'Otro',
+}
+
+export const SEVERITY_LABELS = {
+  low: 'Baja',
+  medium: 'Media',
+  high: 'Alta',
+  Low: 'Baja',
+  Medium: 'Media',
+  High: 'Alta',
+}
+
+export function translateCategory(cat) {
+  return CATEGORY_LABELS[cat] || cat
+}
+
+export function translateSeverity(sev) {
+  return SEVERITY_LABELS[sev] || sev
+}
+
 function usageCount(condition) {
   return Number(condition.usage_count) || 0
 }
@@ -31,11 +69,11 @@ export default function Conditions() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   usePageHeader({
-    title: 'Conditions',
-    subtitle: 'Medical conditions on file, for diagnoses and history',
+    title: 'Diagnósticos',
+    subtitle: 'Condiciones médicas registradas, diagnósticos e historial',
     action: (
       <Button onClick={() => setAddOpen(true)}>
-        <Plus size={16} /> Add condition
+        <Plus size={16} /> Agregar diagnóstico
       </Button>
     ),
   })
@@ -55,10 +93,10 @@ export default function Conditions() {
   async function handleAdd(payload) {
     try {
       await createCondition.mutateAsync(payload)
-      notify('Condition added')
+      notify('Diagnóstico agregado')
       setAddOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save condition', 'error')
+      notify(err.message || 'Error al guardar diagnóstico', 'error')
     }
   }
 
@@ -66,10 +104,10 @@ export default function Conditions() {
     if (!editTarget) return
     try {
       await updateCondition.mutateAsync({ id: editTarget.id, data: payload })
-      notify('Condition updated')
+      notify('Diagnóstico actualizado')
       setEditTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to save condition', 'error')
+      notify(err.message || 'Error al guardar diagnóstico', 'error')
     }
   }
 
@@ -77,7 +115,7 @@ export default function Conditions() {
     const count = usageCount(condition)
     if (count > 0) {
       notify(
-        `Can't delete "${condition.name}": it's referenced in ${count} appointment(s). Update those appointments first.`,
+        `No se puede eliminar "${condition.name}": está referenciado en ${count} cita(s). Modifica esas citas primero.`,
         'error',
       )
       return
@@ -89,10 +127,10 @@ export default function Conditions() {
     if (!deleteTarget) return
     try {
       await deleteCondition.mutateAsync(deleteTarget.id)
-      notify('Condition deleted')
+      notify('Diagnóstico eliminado')
       setDeleteTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to delete condition', 'error')
+      notify(err.message || 'Error al eliminar diagnóstico', 'error')
     }
   }
 
@@ -104,7 +142,7 @@ export default function Conditions() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, description, ICD code, or category…"
+            placeholder="Buscar por nombre, descripción, código CIE o categoría…"
             className="w-full bg-transparent text-sm outline-none placeholder:text-muted-2"
           />
         </div>
@@ -118,18 +156,18 @@ export default function Conditions() {
       <div className="glass rounded-[20px]">
         <div className="flex items-center justify-between border-b border-glass-border px-5 py-3.75">
           <h2 className="text-[0.9rem] font-bold">
-            Condition list{' '}
+            Lista de diagnósticos{' '}
             <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{filtered.length}</span>
           </h2>
         </div>
 
         {isLoading ? (
-          <div className="p-5 text-sm text-muted">Loading…</div>
+          <div className="p-5 text-sm text-muted">Cargando…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={ClipboardList}
-            title="No conditions found"
-            description={conditions?.length ? 'Try a different search.' : 'Add your first condition to get started.'}
+            title="No se encontraron diagnósticos"
+            description={conditions?.length ? 'Prueba con otra búsqueda.' : 'Agrega tu primer diagnóstico para comenzar.'}
           />
         ) : (
           <>
@@ -146,13 +184,13 @@ export default function Conditions() {
                   >
                     <div className="truncate font-semibold text-text">{c.name}</div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                      {c.category && <Badge>{c.category}</Badge>}
-                      {c.severity && <Badge tone={c.severity.toLowerCase()}>{c.severity}</Badge>}
+                      {c.category && <Badge>{translateCategory(c.category)}</Badge>}
+                      {c.severity && <Badge tone={c.severity.toLowerCase()}>{translateSeverity(c.severity)}</Badge>}
                     </div>
                     <div className="mt-1.5 flex items-center gap-2 text-xs text-muted">
                       {c.icd_code && <span className="font-mono">{c.icd_code}</span>}
                       <span>
-                        {usageCount(c)} usage{usageCount(c) === 1 ? '' : 's'}
+                        {usageCount(c)} uso{usageCount(c) === 1 ? '' : 's'}
                       </span>
                     </div>
                   </button>
@@ -165,11 +203,11 @@ export default function Conditions() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-glass-border bg-white/3 text-left font-mono text-[0.68rem] uppercase tracking-wide text-muted-2">
-                    <th className="px-5 py-2.5 font-semibold">Name</th>
-                    <th className="px-5 py-2.5 font-semibold">ICD code</th>
-                    <th className="px-5 py-2.5 font-semibold">Category</th>
-                    <th className="px-5 py-2.5 font-semibold">Severity</th>
-                    <th className="px-5 py-2.5 font-semibold">Usage</th>
+                    <th className="px-5 py-2.5 font-semibold">Nombre</th>
+                    <th className="px-5 py-2.5 font-semibold">Código CIE-10</th>
+                    <th className="px-5 py-2.5 font-semibold">Categoría</th>
+                    <th className="px-5 py-2.5 font-semibold">Gravedad</th>
+                    <th className="px-5 py-2.5 font-semibold">Usos</th>
                     <th className="px-5 py-2.5" />
                   </tr>
                 </thead>
@@ -182,13 +220,13 @@ export default function Conditions() {
                         </Link>
                         {c.description && <div className="max-w-72 truncate text-xs text-muted">{c.description}</div>}
                       </td>
-                      <td className="px-5 py-3 font-mono text-muted">{c.icd_code || 'Not set'}</td>
-                      <td className="px-5 py-3">{c.category ? <Badge>{c.category}</Badge> : <span className="text-muted-2">Uncategorized</span>}</td>
+                      <td className="px-5 py-3 font-mono text-muted">{c.icd_code || 'No establecida'}</td>
+                      <td className="px-5 py-3">{c.category ? <Badge>{translateCategory(c.category)}</Badge> : <span className="text-muted-2">Sin categoría</span>}</td>
                       <td className="px-5 py-3">
-                        {c.severity ? <Badge tone={c.severity.toLowerCase()}>{c.severity}</Badge> : <span className="text-muted-2">Not set</span>}
+                        {c.severity ? <Badge tone={c.severity.toLowerCase()}>{translateSeverity(c.severity)}</Badge> : <span className="text-muted-2">Not set</span>}
                       </td>
                       <td className="px-5 py-3 text-muted">
-                        {usageCount(c)} usage{usageCount(c) === 1 ? '' : 's'}
+                        {usageCount(c)} uso{usageCount(c) === 1 ? '' : 's'}
                       </td>
                       <td className="px-5 py-3">
                         <div className="flex justify-end gap-1">
@@ -225,8 +263,8 @@ export default function Conditions() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete condition"
-        description={deleteTarget && `Delete "${deleteTarget.name}"? This cannot be undone.`}
+        title="Eliminar diagnóstico"
+        description={deleteTarget && `¿Eliminar "${deleteTarget.name}"? Esta acción no se puede deshacer.`}
         onConfirm={handleDelete}
         pending={deleteCondition.isPending}
       />

@@ -34,12 +34,12 @@ function toForm(patient) {
 
 function computeErrors(f) {
   const next = {}
-  if (!f.first_name.trim()) next.first_name = 'First name is required'
-  if (!f.last_name.trim()) next.last_name = 'Last name is required'
-  if (!isValidEmail(f.email.trim())) next.email = 'Please enter a valid email address'
-  if (!isValidPhone(f.phone.trim())) next.phone = 'Phone number can only contain numbers, +, spaces, and hyphens'
+  if (!f.first_name.trim()) next.first_name = 'El nombre es obligatorio'
+  if (!f.last_name.trim()) next.last_name = 'El apellido es obligatorio'
+  if (!isValidEmail(f.email.trim())) next.email = 'Por favor ingresa un correo electrónico válido'
+  if (!isValidPhone(f.phone.trim())) next.phone = 'El teléfono solo puede contener números, +, espacios y guiones'
   if (!isValidPhone(f.emergency_contact_phone.trim()))
-    next.emergency_contact_phone = 'Phone number can only contain numbers, +, spaces, and hyphens'
+    next.emergency_contact_phone = 'El teléfono solo puede contener números, +, espacios y guiones'
   return next
 }
 
@@ -69,14 +69,14 @@ export function PatientFormDialog({ open, onOpenChange, patient, onSubmit, savin
     })
   }
 
-  let submitLabel = patient ? 'Update patient' : 'Save patient'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = patient ? 'Actualizar paciente' : 'Guardar paciente'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={patient ? 'Edit patient' : 'Add new patient'}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={patient ? 'Editar paciente' : 'Agregar nuevo paciente'}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="First name" htmlFor="first_name" required error={errors.first_name}>
+          <Field label="Nombre" htmlFor="first_name" required error={errors.first_name}>
             <TextInput
               id="first_name"
               value={form.first_name}
@@ -85,7 +85,7 @@ export function PatientFormDialog({ open, onOpenChange, patient, onSubmit, savin
               onBlur={() => touch('first_name')}
             />
           </Field>
-          <Field label="Last name" htmlFor="last_name" required error={errors.last_name}>
+          <Field label="Apellido" htmlFor="last_name" required error={errors.last_name}>
             <TextInput
               id="last_name"
               value={form.last_name}
@@ -97,7 +97,7 @@ export function PatientFormDialog({ open, onOpenChange, patient, onSubmit, savin
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Date of birth" htmlFor="date_of_birth">
+          <Field label="Fecha de nacimiento" htmlFor="date_of_birth">
             <TextInput
               id="date_of_birth"
               type="date"
@@ -105,18 +105,18 @@ export function PatientFormDialog({ open, onOpenChange, patient, onSubmit, savin
               onChange={(e) => setForm((f) => ({ ...f, date_of_birth: e.target.value }))}
             />
           </Field>
-          <Field label="Gender" htmlFor="gender">
+          <Field label="Género" htmlFor="gender">
             <Select id="gender" value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}>
-              <option value="">Not specified</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
+              <option value="">No especificado</option>
+              <option value="Male">Masculino</option>
+              <option value="Female">Femenino</option>
+              <option value="Other">Otro</option>
             </Select>
           </Field>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Phone" htmlFor="phone" error={errors.phone}>
+          <Field label="Teléfono" htmlFor="phone" error={errors.phone}>
             <TextInput
               id="phone"
               value={form.phone}
@@ -125,7 +125,7 @@ export function PatientFormDialog({ open, onOpenChange, patient, onSubmit, savin
               onBlur={() => touch('phone')}
             />
           </Field>
-          <Field label="Email" htmlFor="email" error={errors.email}>
+          <Field label="Correo electrónico" htmlFor="email" error={errors.email}>
             <TextInput
               id="email"
               type="email"
@@ -137,19 +137,19 @@ export function PatientFormDialog({ open, onOpenChange, patient, onSubmit, savin
           </Field>
         </div>
 
-        <Field label="Address" htmlFor="address">
+        <Field label="Dirección" htmlFor="address">
           <Textarea id="address" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} />
         </Field>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Emergency contact name" htmlFor="ec_name">
+          <Field label="Contacto de emergencia (nombre)" htmlFor="ec_name">
             <TextInput
               id="ec_name"
               value={form.emergency_contact_name}
               onChange={(e) => setForm((f) => ({ ...f, emergency_contact_name: e.target.value }))}
             />
           </Field>
-          <Field label="Emergency contact phone" htmlFor="ec_phone" error={errors.emergency_contact_phone}>
+          <Field label="Contacto de emergencia (teléfono)" htmlFor="ec_phone" error={errors.emergency_contact_phone}>
             <TextInput
               id="ec_phone"
               value={form.emergency_contact_phone}

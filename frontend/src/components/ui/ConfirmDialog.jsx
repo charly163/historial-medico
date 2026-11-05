@@ -3,7 +3,7 @@ import { Button } from './Button'
 
 /** Styled replacement for window.confirm() — destructive actions get a proper
  * glass-themed dialog instead of a jarring native browser popup. */
-export function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = 'Delete', onConfirm, pending }) {
+export function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = 'Eliminar', onConfirm, pending }) {
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
@@ -13,10 +13,10 @@ export function ConfirmDialog({ open, onOpenChange, title, description, confirmL
           <AlertDialog.Description className="mt-2 text-sm text-muted">{description}</AlertDialog.Description>
           <div className="mt-5 flex justify-end gap-2">
             <AlertDialog.Cancel asChild>
-              <Button variant="ghost">Cancel</Button>
+              <Button variant="ghost">Cancelar</Button>
             </AlertDialog.Cancel>
             <Button variant="danger" onClick={onConfirm} disabled={pending}>
-              {pending ? 'Deleting…' : confirmLabel}
+              {pending ? 'Eliminando…' : confirmLabel}
             </Button>
           </div>
         </AlertDialog.Content>

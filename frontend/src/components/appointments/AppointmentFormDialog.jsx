@@ -6,7 +6,16 @@ import { Dialog } from '../ui/Dialog'
 import { Field, TextInput, Select, Textarea } from '../ui/Field'
 import { Button } from '../ui/Button'
 
-const TYPES = ['Consultation', 'Follow-up', 'Emergency', 'Routine Check-up', 'Specialist Referral', 'Diagnostic', 'Treatment', 'Other']
+export const APPOINTMENT_TYPES = [
+  { value: 'Consultation', label: 'Consulta' },
+  { value: 'Follow-up', label: 'Seguimiento' },
+  { value: 'Emergency', label: 'Urgencia' },
+  { value: 'Routine Check-up', label: 'Control de rutina' },
+  { value: 'Specialist Referral', label: 'Derivación a especialista' },
+  { value: 'Diagnostic', label: 'Diagnóstico' },
+  { value: 'Treatment', label: 'Tratamiento' },
+  { value: 'Other', label: 'Otro' },
+]
 
 const EMPTY_FORM = {
   patient_id: '',
@@ -44,11 +53,11 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
 
   function computeErrors(f) {
     const next = {}
-    if (!f.patient_id) next.patient_id = 'Please select a patient'
-    if (!f.appointment_date) next.appointment_date = 'Please select a date and time'
+    if (!f.patient_id) next.patient_id = 'Por favor selecciona un paciente'
+    if (!f.appointment_date) next.appointment_date = 'Por favor selecciona fecha y hora'
     if (f.appointment_date && !appointment && f.status === 'scheduled') {
       if (new Date(f.appointment_date) < new Date()) {
-        next.appointment_date = 'Cannot schedule an appointment in the past'
+        next.appointment_date = 'No se puede agendar una cita en el pasado'
       }
     }
     return next
@@ -71,13 +80,13 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
     })
   }
 
-  let submitLabel = appointment ? 'Update appointment' : 'Save appointment'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = appointment ? 'Actualizar cita' : 'Guardar cita'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={appointment ? 'Edit appointment' : 'Schedule appointment'}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={appointment ? 'Editar cita' : 'Agendar cita'}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        <Field label="Patient" htmlFor="patient_id" required error={errors.patient_id}>
+        <Field label="Paciente" htmlFor="patient_id" required error={errors.patient_id}>
           <Select
             id="patient_id"
             value={form.patient_id}
@@ -87,7 +96,7 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
               touch('patient_id')
             }}
           >
-            <option value="">Select patient</option>
+            <option value="">Selecciona un paciente…</option>
             {(patients ?? []).map((p) => (
               <option key={p.id} value={p.id}>
                 {p.first_name} {p.last_name}
@@ -97,9 +106,9 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
         </Field>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Doctor" htmlFor="doctor_id">
+          <Field label="Médico" htmlFor="doctor_id">
             <Select id="doctor_id" value={form.doctor_id} onChange={(e) => setForm((f) => ({ ...f, doctor_id: e.target.value }))}>
-              <option value="">Not specified</option>
+              <option value="">No especificado</option>
               {(doctors ?? []).map((d) => (
                 <option key={d.id} value={d.id}>
                   Dr. {d.first_name} {d.last_name}
@@ -108,9 +117,9 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
               ))}
             </Select>
           </Field>
-          <Field label="Institution" htmlFor="institution_id">
+          <Field label="Institución" htmlFor="institution_id">
             <Select id="institution_id" value={form.institution_id} onChange={(e) => setForm((f) => ({ ...f, institution_id: e.target.value }))}>
-              <option value="">Not specified</option>
+              <option value="">No especificado</option>
               {(institutions ?? []).map((i) => (
                 <option key={i.id} value={i.id}>
                   {i.name}
@@ -122,7 +131,7 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Date & time" htmlFor="appointment_date" required error={errors.appointment_date}>
+          <Field label="Fecha y hora" htmlFor="appointment_date" required error={errors.appointment_date}>
             <TextInput
               id="appointment_date"
               type="datetime-local"
@@ -132,32 +141,32 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
               onBlur={() => touch('appointment_date')}
             />
           </Field>
-          <Field label="Type" htmlFor="type">
+          <Field label="Tipo" htmlFor="type">
             <Select id="type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
-              <option value="">Select type</option>
-              {TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+              <option value="">Selecciona el tipo…</option>
+              {APPOINTMENT_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
                 </option>
               ))}
             </Select>
           </Field>
         </div>
 
-        <Field label="Status" htmlFor="status">
+        <Field label="Estado" htmlFor="status">
           <Select id="status" value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}>
-            <option value="scheduled">Scheduled</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="scheduled">Programada</option>
+            <option value="completed">Completada</option>
+            <option value="cancelled">Cancelada</option>
           </Select>
         </Field>
 
-        <Field label="Notes" htmlFor="notes">
-          <Textarea id="notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Any additional notes or instructions…" />
+        <Field label="Notas" htmlFor="notes">
+          <Textarea id="notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Cualquier nota adicional o indicación…" />
         </Field>
 
         {form.status === 'completed' && (
-          <Field label="Diagnosis" htmlFor="diagnosis">
+          <Field label="Diagnóstico" htmlFor="diagnosis">
             <Textarea id="diagnosis" value={form.diagnosis} onChange={(e) => setForm((f) => ({ ...f, diagnosis: e.target.value }))} />
           </Field>
         )}

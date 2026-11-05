@@ -57,18 +57,18 @@ export default function AppointmentDetail() {
     ),
     action: (
       <div className="flex gap-2">
-        <IconButton label="Edit appointment" onClick={() => setEditOpen(true)} className="border border-glass-border">
+        <IconButton label="Editar cita" onClick={() => setEditOpen(true)} className="border border-glass-border">
           <Pencil size={15} />
         </IconButton>
-        <IconButton label="Delete appointment" onClick={() => setDeleteOpen(true)} className="border border-glass-border">
+        <IconButton label="Eliminar cita" onClick={() => setDeleteOpen(true)} className="border border-glass-border">
           <Trash2 size={15} />
         </IconButton>
       </div>
     ),
   })
 
-  if (isLoading) return <div className="text-sm text-muted">Loading…</div>
-  if (!appointment) return <div className="text-sm text-muted">Appointment not found.</div>
+  if (isLoading) return <div className="text-sm text-muted">Cargando…</div>
+  if (!appointment) return <div className="text-sm text-muted">Cita no encontrada.</div>
 
   return (
     <div>
@@ -76,62 +76,62 @@ export default function AppointmentDetail() {
         onClick={() => (location.key === 'default' ? navigate('/appointments') : navigate(-1))}
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-white"
       >
-        <ArrowLeft size={15} /> Back
+        <ArrowLeft size={15} /> Volver
       </button>
 
       <div className="glass mb-4 rounded-[20px] p-6">
         <dl className="grid grid-cols-3 gap-y-3 text-sm">
-          <dt className="font-semibold text-muted">Status</dt>
+          <dt className="font-semibold text-muted">Estado</dt>
           <dd className="col-span-2">
             <Badge tone={appointment.status}>{statusLabel(appointment.status)}</Badge>
           </dd>
 
-          <dt className="font-semibold text-muted">Date &amp; time</dt>
+          <dt className="font-semibold text-muted">Fecha y hora</dt>
           <dd className="col-span-2">
             {formatDateTimeLong(appointment.appointment_date)} at {formatTime(appointment.appointment_date)}
           </dd>
 
-          <dt className="font-semibold text-muted">Patient</dt>
+          <dt className="font-semibold text-muted">Paciente</dt>
           <dd className="col-span-2">
             <Link to={`/patients/${appointment.patient_id}`} className="text-glow-b hover:underline">
               {appointment.patient_first_name} {appointment.patient_last_name}
             </Link>
           </dd>
 
-          <dt className="font-semibold text-muted">Doctor</dt>
+          <dt className="font-semibold text-muted">Médico</dt>
           <dd className="col-span-2">
             {appointment.doctor_id ? (
               <Link to={`/doctors/${appointment.doctor_id}`} className="text-glow-b hover:underline">
                 Dr. {appointment.doctor_first_name} {appointment.doctor_last_name}
               </Link>
             ) : (
-              'Not assigned'
+              'No asignado'
             )}
             {appointment.doctor_specialty && <span className="text-muted"> - {appointment.doctor_specialty}</span>}
           </dd>
 
-          <dt className="font-semibold text-muted">Institution</dt>
+          <dt className="font-semibold text-muted">Institución</dt>
           <dd className="col-span-2">
             {appointment.institution_id ? (
               <Link to={`/institutions/${appointment.institution_id}`} className="text-glow-b hover:underline">
                 {appointment.institution_name}
               </Link>
             ) : (
-              'Not specified'
+              'No especificado'
             )}
             {appointment.institution_type && <span className="text-muted"> - {appointment.institution_type}</span>}
           </dd>
 
           {appointment.notes && (
             <>
-              <dt className="font-semibold text-muted">Notes</dt>
+              <dt className="font-semibold text-muted">Notas</dt>
               <dd className="col-span-2 whitespace-pre-wrap">{appointment.notes}</dd>
             </>
           )}
 
           {appointment.diagnosis && (
             <>
-              <dt className="font-semibold text-muted">Diagnosis</dt>
+              <dt className="font-semibold text-muted">Diagnóstico</dt>
               <dd className="col-span-2 whitespace-pre-wrap">{appointment.diagnosis}</dd>
             </>
           )}
@@ -175,8 +175,8 @@ export default function AppointmentDetail() {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete appointment"
-        description="Delete this appointment? This cannot be undone."
+        title="Eliminar cita"
+        description="¿Eliminar esta cita? Esta acción no se puede deshacer."
         onConfirm={handleDelete}
         pending={deleteAppointment.isPending}
       />

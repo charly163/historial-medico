@@ -50,11 +50,11 @@ export default function DiagnosticStudies() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   usePageHeader({
-    title: 'Diagnostic Studies',
+    title: 'Estudios Diagnósticos',
     subtitle: 'Imaging and scan records, with optional attachments',
     action: (
       <Button onClick={() => setAddOpen(true)}>
-        <Plus size={16} /> Add study
+        <Plus size={16} /> Agregar estudio
       </Button>
     ),
   })
@@ -138,18 +138,18 @@ export default function DiagnosticStudies() {
       <div className="glass rounded-[20px]">
         <div className="flex items-center justify-between border-b border-glass-border px-5 py-3.75">
           <h2 className="text-[0.9rem] font-bold">
-            Study list{' '}
+            Lista de estudios{' '}
             <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{filtered.length}</span>
           </h2>
         </div>
 
         {isLoading ? (
-          <div className="p-5 text-sm text-muted">Loading…</div>
+          <div className="p-5 text-sm text-muted">Cargando…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Scan}
-            title="No diagnostic studies found"
-            description={studies?.length ? 'Try a different search.' : 'Add your first diagnostic study to get started.'}
+            title="No se encontraron estudios diagnósticos"
+            description={studies?.length ? 'Prueba con otra búsqueda.' : 'Agrega tu primer estudio diagnóstico para comenzar.'}
           />
         ) : (
           <>
@@ -183,9 +183,9 @@ export default function DiagnosticStudies() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-glass-border bg-white/3 text-left font-mono text-[0.68rem] uppercase tracking-wide text-muted-2">
-                    <th className="px-5 py-2.5 font-semibold">Patient</th>
-                    <th className="px-5 py-2.5 font-semibold">Study</th>
-                    <th className="px-5 py-2.5 font-semibold">Date</th>
+                    <th className="px-5 py-2.5 font-semibold">Paciente</th>
+                    <th className="px-5 py-2.5 font-semibold">Estudio</th>
+                    <th className="px-5 py-2.5 font-semibold">Fecha</th>
                     <th className="px-5 py-2.5 font-semibold">Ordering physician</th>
                     <th className="px-5 py-2.5 font-semibold">Performing physician</th>
                     <th className="px-5 py-2.5" />
@@ -244,7 +244,7 @@ export default function DiagnosticStudies() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete diagnostic study"
+        title="Eliminar estudio diagnóstico"
         description={deleteTarget && `Delete this ${deleteTarget.study_type} study? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deleteStudy.isPending}

@@ -44,10 +44,10 @@ export function UserFormDialog({ open, onOpenChange, user, onSubmit, saving }) {
 
   function computeErrors(f) {
     const next = {}
-    if (!f.first_name.trim()) next.first_name = 'First name is required'
-    if (!f.last_name.trim()) next.last_name = 'Last name is required'
-    if (!f.username.trim()) next.username = 'Username is required'
-    if (!f.email.trim() || !isValidEmail(f.email.trim())) next.email = 'Please enter a valid email address'
+    if (!f.first_name.trim()) next.first_name = 'El nombre es obligatorio'
+    if (!f.last_name.trim()) next.last_name = 'El apellido es obligatorio'
+    if (!f.username.trim()) next.username = 'El usuario es obligatorio'
+    if (!f.email.trim() || !isValidEmail(f.email.trim())) next.email = 'Por favor ingresa un correo electrónico válido'
     if (!user && f.password.length < 6) next.password = 'Password must be at least 6 characters'
     return next
   }
@@ -70,14 +70,14 @@ export function UserFormDialog({ open, onOpenChange, user, onSubmit, saving }) {
     onSubmit(payload)
   }
 
-  let submitLabel = user ? 'Update user' : 'Save user'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = user ? 'Actualizar usuario' : 'Guardar usuario'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title={user ? 'Edit user' : 'Add user'}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="First name" htmlFor="first_name" required error={errors.first_name}>
+          <Field label="Nombre" htmlFor="first_name" required error={errors.first_name}>
             <TextInput
               id="first_name"
               value={form.first_name}
@@ -86,7 +86,7 @@ export function UserFormDialog({ open, onOpenChange, user, onSubmit, saving }) {
               onBlur={() => touch('first_name')}
             />
           </Field>
-          <Field label="Last name" htmlFor="last_name" required error={errors.last_name}>
+          <Field label="Apellido" htmlFor="last_name" required error={errors.last_name}>
             <TextInput
               id="last_name"
               value={form.last_name}
@@ -98,7 +98,7 @@ export function UserFormDialog({ open, onOpenChange, user, onSubmit, saving }) {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Username" htmlFor="username" required error={errors.username}>
+          <Field label="Nombre de usuario" htmlFor="username" required error={errors.username}>
             <TextInput
               id="username"
               value={form.username}
@@ -107,7 +107,7 @@ export function UserFormDialog({ open, onOpenChange, user, onSubmit, saving }) {
               onBlur={() => touch('username')}
             />
           </Field>
-          <Field label="Email" htmlFor="email" required error={errors.email}>
+          <Field label="Correo electrónico" htmlFor="email" required error={errors.email}>
             <TextInput
               id="email"
               type="email"
@@ -134,7 +134,7 @@ export function UserFormDialog({ open, onOpenChange, user, onSubmit, saving }) {
         )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Role" htmlFor="role" required>
+          <Field label="Rol" htmlFor="role" required>
             <Select
               id="role"
               value={form.role}

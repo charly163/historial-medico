@@ -11,7 +11,7 @@ export default defineConfig({
     // Same-origin /api in dev too, matching how Caddy proxies it in production —
     // the frontend code never needs to know the backend's actual host/port.
     proxy: {
-      '/api': { target: 'http://backend:3000', changeOrigin: true },
+      '/api': { target: 'http://localhost:8080', changeOrigin: true },
     },
   },
 })

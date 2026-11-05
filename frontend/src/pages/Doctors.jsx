@@ -15,7 +15,7 @@ const { useList, useCreate, useUpdate, useDelete } = createResourceHooks('doctor
 
 function institutionSummary(d) {
   const list = d.institutions ?? []
-  if (!list.length) return 'No institutions assigned'
+  if (!list.length) return 'Sin instituciones asignadas'
   return list.map((i) => i.name).join(', ')
 }
 
@@ -33,11 +33,11 @@ export default function Doctors() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   usePageHeader({
-    title: 'Doctors',
-    subtitle: 'Everyone treating your household',
+    title: 'Médicos',
+    subtitle: 'Profesionales de la salud registrados',
     action: (
       <Button onClick={() => setAddOpen(true)}>
-        <Plus size={16} /> Add doctor
+        <Plus size={16} /> Agregar médico
       </Button>
     ),
   })
@@ -59,10 +59,10 @@ export default function Doctors() {
   async function handleAdd(payload) {
     try {
       await createDoctor.mutateAsync(payload)
-      notify('Doctor added')
+      notify('Médico agregado')
       setAddOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save doctor', 'error')
+      notify(err.message || 'Error al guardar médico', 'error')
     }
   }
 
@@ -70,10 +70,10 @@ export default function Doctors() {
     if (!editTarget) return
     try {
       await updateDoctor.mutateAsync({ id: editTarget.id, data: payload })
-      notify('Doctor updated')
+      notify('Médico actualizado')
       setEditTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to save doctor', 'error')
+      notify(err.message || 'Error al guardar médico', 'error')
     }
   }
 
@@ -81,10 +81,10 @@ export default function Doctors() {
     if (!deleteTarget) return
     try {
       await deleteDoctor.mutateAsync(deleteTarget.id)
-      notify('Doctor deleted')
+      notify('Médico eliminado')
       setDeleteTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to delete doctor', 'error')
+      notify(err.message || 'Error al eliminar médico', 'error')
     }
   }
 
@@ -116,12 +116,12 @@ export default function Doctors() {
         </div>
 
         {isLoading ? (
-          <div className="p-5 text-sm text-muted">Loading…</div>
+          <div className="p-5 text-sm text-muted">Cargando…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Stethoscope}
-            title="No doctors found"
-            description={doctors?.length ? 'Try a different search.' : 'Add your first doctor to get started.'}
+            title="No se encontraron médicos"
+            description={doctors?.length ? 'Prueba con otra búsqueda.' : 'Agrega tu primer médico para comenzar.'}
           />
         ) : (
           <>
@@ -165,10 +165,10 @@ export default function Doctors() {
                 <thead>
                   <tr className="border-b border-glass-border bg-white/3 text-left font-mono text-[0.68rem] uppercase tracking-wide text-muted-2">
                     <th className="px-5 py-2.5 font-semibold">Name</th>
-                    <th className="px-5 py-2.5 font-semibold">Specialty</th>
+                    <th className="px-5 py-2.5 font-semibold">Especialidad</th>
                     <th className="px-5 py-2.5 font-semibold">License</th>
-                    <th className="px-5 py-2.5 font-semibold">Contact</th>
-                    <th className="px-5 py-2.5 font-semibold">Institutions</th>
+                    <th className="px-5 py-2.5 font-semibold">Contacto</th>
+                    <th className="px-5 py-2.5 font-semibold">Instituciones</th>
                     <th className="px-5 py-2.5" />
                   </tr>
                 </thead>
@@ -231,7 +231,7 @@ export default function Doctors() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete doctor"
+        title="Eliminar médico"
         description={deleteTarget && `Delete "Dr. ${deleteTarget.first_name} ${deleteTarget.last_name}"? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deleteDoctor.isPending}

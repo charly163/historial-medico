@@ -7,7 +7,7 @@ export default function Settings() {
   const [accent, setAccent] = useState(getStoredAccent)
 
   usePageHeader({
-    title: 'Settings',
+    title: 'Configuración',
     subtitle: 'Personal preferences for this account',
   })
 

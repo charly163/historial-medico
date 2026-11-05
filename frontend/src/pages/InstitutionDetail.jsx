@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import { ArrowLeft, Building2, Pencil, Trash2, Stethoscope } from 'lucide-react'
 import { createResourceHooks } from '../lib/resource'
 import { formatDateTime } from '../lib/format'
+import { translateInstitutionType } from './Institutions'
 import { useToast } from '../components/ui/Toast'
 import { usePageHeader } from '../lib/pageHeader'
 import { InstitutionFormDialog } from '../components/institutions/InstitutionFormDialog'
@@ -25,17 +26,17 @@ export default function InstitutionDetail() {
   async function handleUpdate(payload) {
     try {
       await updateInstitution.mutateAsync({ id, data: payload })
-      notify('Institution updated')
+      notify('Institución actualizada')
       setEditOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save institution', 'error')
+      notify(err.message || 'Error al guardar institución', 'error')
     }
   }
 
   function requestDelete() {
     const count = institution?.doctors?.length ?? 0
     if (count > 0) {
-      notify(`Can't delete: ${count} doctor(s) are still associated. Remove those associations first.`, 'error')
+      notify(`No se puede eliminar: hay ${count} médico(s) asociados. Desvincula esos médicos primero.`, 'error')
       return
     }
     setDeleteOpen(true)
@@ -44,10 +45,10 @@ export default function InstitutionDetail() {
   async function handleDelete() {
     try {
       await deleteInstitution.mutateAsync(id)
-      notify('Institution deleted')
+      notify('Institución eliminada')
       navigate('/institutions')
     } catch (err) {
-      notify(err.message || 'Failed to delete institution', 'error')
+      notify(err.message || 'Error al eliminar institución', 'error')
     }
   }
 
@@ -60,18 +61,18 @@ export default function InstitutionDetail() {
     ),
     action: (
       <div className="flex gap-2">
-        <IconButton label="Edit institution" onClick={() => setEditOpen(true)} className="border border-glass-border">
+        <IconButton label="Editar institución" onClick={() => setEditOpen(true)} className="border border-glass-border">
           <Pencil size={15} />
         </IconButton>
-        <IconButton label="Delete institution" onClick={requestDelete} className="border border-glass-border">
+        <IconButton label="Eliminar institución" onClick={requestDelete} className="border border-glass-border">
           <Trash2 size={15} />
         </IconButton>
       </div>
     ),
   })
 
-  if (isLoading) return <div className="text-sm text-muted">Loading…</div>
-  if (!institution) return <div className="text-sm text-muted">Institution not found.</div>
+  if (isLoading) return <div className="text-sm text-muted">Cargando…</div>
+  if (!institution) return <div className="text-sm text-muted">Institución no encontrada.</div>
 
   return (
     <div>
@@ -79,53 +80,53 @@ export default function InstitutionDetail() {
         onClick={() => (location.key === 'default' ? navigate('/institutions') : navigate(-1))}
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-white"
       >
-        <ArrowLeft size={15} /> Back
+        <ArrowLeft size={15} /> Volver
       </button>
 
       <div className="glass mb-4 rounded-[20px] p-6">
         <dl className="grid grid-cols-3 gap-y-3 text-sm">
-          <dt className="font-semibold text-muted">Type</dt>
-          <dd className="col-span-2">{institution.type ?? 'Not specified'}</dd>
+          <dt className="font-semibold text-muted">Tipo</dt>
+          <dd className="col-span-2">{translateInstitutionType(institution.type) ?? 'No especificado'}</dd>
 
-          <dt className="font-semibold text-muted">Address</dt>
-          <dd className="col-span-2">{institution.address || 'Not provided'}</dd>
+          <dt className="font-semibold text-muted">Dirección</dt>
+          <dd className="col-span-2">{institution.address || 'No proporcionado'}</dd>
 
-          <dt className="font-semibold text-muted">Phone</dt>
+          <dt className="font-semibold text-muted">Teléfono</dt>
           <dd className="col-span-2">
             {institution.phone ? (
               <a href={`tel:${institution.phone}`} className="text-glow-b hover:underline">
                 {institution.phone}
               </a>
             ) : (
-              'Not provided'
+              'No proporcionado'
             )}
           </dd>
 
-          <dt className="font-semibold text-muted">Email</dt>
+          <dt className="font-semibold text-muted">Correo electrónico</dt>
           <dd className="col-span-2">
             {institution.email ? (
               <a href={`mailto:${institution.email}`} className="text-glow-b hover:underline">
                 {institution.email}
               </a>
             ) : (
-              'Not provided'
+              'No proporcionado'
             )}
           </dd>
 
-          <dt className="font-semibold text-muted">Website</dt>
+          <dt className="font-semibold text-muted">Sitio web</dt>
           <dd className="col-span-2">
             {institution.website ? (
               <a href={institution.website} target="_blank" rel="noreferrer" className="text-glow-b hover:underline">
                 {institution.website}
               </a>
             ) : (
-              'Not provided'
+              'No proporcionado'
             )}
           </dd>
 
           {institution.created_at && (
             <>
-              <dt className="font-semibold text-muted">Created</dt>
+              <dt className="font-semibold text-muted">Registrado el</dt>
               <dd className="col-span-2 text-muted">{formatDateTime(institution.created_at)}</dd>
             </>
           )}
@@ -174,7 +175,7 @@ export default function InstitutionDetail() {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete institution"
+        title="Eliminar institución"
         description={`Delete "${institution.name}"? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deleteInstitution.isPending}

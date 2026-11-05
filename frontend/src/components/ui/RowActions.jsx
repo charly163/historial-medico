@@ -8,10 +8,10 @@ import { IconButton } from './Button'
 export function RowActions({ onEdit, onDelete, className = 'flex shrink-0 gap-1' }) {
   return (
     <div className={className}>
-      <IconButton label="Edit" onClick={onEdit}>
+      <IconButton label="Editar" onClick={onEdit}>
         <Pencil size={14} />
       </IconButton>
-      <IconButton label="Delete" onClick={onDelete}>
+      <IconButton label="Eliminar" onClick={onDelete}>
         <Trash2 size={14} />
       </IconButton>
     </div>

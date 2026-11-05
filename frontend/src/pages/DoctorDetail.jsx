@@ -51,18 +51,18 @@ export default function DoctorDetail() {
     ),
     action: (
       <div className="flex gap-2">
-        <IconButton label="Edit doctor" onClick={() => setEditOpen(true)} className="border border-glass-border">
+        <IconButton label="Editar médico" onClick={() => setEditOpen(true)} className="border border-glass-border">
           <Pencil size={15} />
         </IconButton>
-        <IconButton label="Delete doctor" onClick={() => setDeleteOpen(true)} className="border border-glass-border">
+        <IconButton label="Eliminar médico" onClick={() => setDeleteOpen(true)} className="border border-glass-border">
           <Trash2 size={15} />
         </IconButton>
       </div>
     ),
   })
 
-  if (isLoading) return <div className="text-sm text-muted">Loading…</div>
-  if (!doctor) return <div className="text-sm text-muted">Doctor not found.</div>
+  if (isLoading) return <div className="text-sm text-muted">Cargando…</div>
+  if (!doctor) return <div className="text-sm text-muted">Médico no encontrado.</div>
 
   const institutions = doctor.institutions ?? []
 
@@ -72,42 +72,42 @@ export default function DoctorDetail() {
         onClick={() => (location.key === 'default' ? navigate('/doctors') : navigate(-1))}
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-white"
       >
-        <ArrowLeft size={15} /> Back
+        <ArrowLeft size={15} /> Volver
       </button>
 
       <div className="glass mb-4 rounded-[20px] p-6">
         <dl className="grid grid-cols-3 gap-y-3 text-sm">
-          <dt className="font-semibold text-muted">Specialty</dt>
-          <dd className="col-span-2">{doctor.specialty ?? 'Not specified'}</dd>
+          <dt className="font-semibold text-muted">Especialidad</dt>
+          <dd className="col-span-2">{doctor.specialty ?? 'No especificado'}</dd>
 
-          <dt className="font-semibold text-muted">License number</dt>
-          <dd className="col-span-2 font-mono">{doctor.license_number || 'Not provided'}</dd>
+          <dt className="font-semibold text-muted">Número de matrícula</dt>
+          <dd className="col-span-2 font-mono">{doctor.license_number || 'No proporcionado'}</dd>
 
-          <dt className="font-semibold text-muted">Phone</dt>
+          <dt className="font-semibold text-muted">Teléfono</dt>
           <dd className="col-span-2">
             {doctor.phone ? (
               <a href={`tel:${doctor.phone}`} className="text-glow-b hover:underline">
                 {doctor.phone}
               </a>
             ) : (
-              'Not provided'
+              'No proporcionado'
             )}
           </dd>
 
-          <dt className="font-semibold text-muted">Email</dt>
+          <dt className="font-semibold text-muted">Correo electrónico</dt>
           <dd className="col-span-2">
             {doctor.email ? (
               <a href={`mailto:${doctor.email}`} className="text-glow-b hover:underline">
                 {doctor.email}
               </a>
             ) : (
-              'Not provided'
+              'No proporcionado'
             )}
           </dd>
 
           {doctor.created_at && (
             <>
-              <dt className="font-semibold text-muted">Created</dt>
+              <dt className="font-semibold text-muted">Registrado el</dt>
               <dd className="col-span-2 text-muted">{formatDateTime(doctor.created_at)}</dd>
             </>
           )}
@@ -151,7 +151,7 @@ export default function DoctorDetail() {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete doctor"
+        title="Eliminar médico"
         description={`Delete "Dr. ${doctor.first_name} ${doctor.last_name}"? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deleteDoctor.isPending}

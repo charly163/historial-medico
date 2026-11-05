@@ -6,8 +6,8 @@ import { Button } from '../ui/Button'
 
 function computeErrors({ password, confirm }) {
   const next = {}
-  if (password.length < 6) next.password = 'Password must be at least 6 characters'
-  else if (password !== confirm) next.confirm = 'Passwords do not match'
+  if (password.length < 6) next.password = 'La contraseña debe tener al menos 6 caracteres'
+  else if (password !== confirm) next.confirm = 'Las contraseñas no coinciden'
   return next
 }
 
@@ -31,12 +31,12 @@ export function ResetPasswordDialog({ open, onOpenChange, user, onSubmit, saving
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Reset password"
+      title="Restablecer contraseña"
       description={user ? `Set a new password for ${user.first_name} ${user.last_name} (${user.username}).` : undefined}
       size="sm"
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        <Field label="New password" htmlFor="newPassword" required error={errors.password}>
+        <Field label="Nueva contraseña" htmlFor="newPassword" required error={errors.password}>
           <TextInput
             id="newPassword"
             type="password"
@@ -47,7 +47,7 @@ export function ResetPasswordDialog({ open, onOpenChange, user, onSubmit, saving
             placeholder="Minimum 6 characters"
           />
         </Field>
-        <Field label="Confirm password" htmlFor="confirmPassword" required error={errors.confirm}>
+        <Field label="Confirmar contraseña" htmlFor="confirmPassword" required error={errors.confirm}>
           <TextInput
             id="confirmPassword"
             type="password"
@@ -60,10 +60,10 @@ export function ResetPasswordDialog({ open, onOpenChange, user, onSubmit, saving
 
         <div className="mt-2 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" disabled={saving}>
-            {saving ? 'Saving…' : 'Reset password'}
+            {saving ? 'Saving…' : 'Restablecer contraseña'}
           </Button>
         </div>
       </form>

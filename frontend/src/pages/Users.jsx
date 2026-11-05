@@ -64,11 +64,11 @@ export default function Users() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   usePageHeader({
-    title: 'Users',
+    title: 'Usuarios',
     subtitle: 'Admin, staff, and patient-portal accounts',
     action: (
       <Button onClick={() => setAddOpen(true)}>
-        <Plus size={16} /> Add user
+        <Plus size={16} /> Agregar usuario
       </Button>
     ),
   })
@@ -79,10 +79,10 @@ export default function Users() {
   async function handleAdd(payload) {
     try {
       await createUser.mutateAsync(payload)
-      notify('User added')
+      notify('Usuario agregado')
       setAddOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save user', 'error')
+      notify(err.message || 'Error al guardar usuario', 'error')
     }
   }
 
@@ -90,10 +90,10 @@ export default function Users() {
     if (!editTarget) return
     try {
       await updateUser.mutateAsync({ id: editTarget.id, data: payload })
-      notify('User updated')
+      notify('Usuario actualizado')
       setEditTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to save user', 'error')
+      notify(err.message || 'Error al guardar usuario', 'error')
     }
   }
 
@@ -124,10 +124,10 @@ export default function Users() {
     if (!deleteTarget) return
     try {
       await deleteUser.mutateAsync(deleteTarget.id)
-      notify('User deleted')
+      notify('Usuario eliminado')
       setDeleteTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to delete user', 'error')
+      notify(err.message || 'Error al eliminar usuario', 'error')
     }
   }
 
@@ -141,9 +141,9 @@ export default function Users() {
         </div>
 
         {isLoading ? (
-          <div className="p-5 text-sm text-muted">Loading…</div>
+          <div className="p-5 text-sm text-muted">Cargando…</div>
         ) : sorted.length === 0 ? (
-          <EmptyState icon={UsersIcon} title="No users found" description="Add your first user to get started." />
+          <EmptyState icon={UsersIcon} title="No se encontraron usuarios" description="Add your first user to get started." />
         ) : (
           <>
             <div className="divide-y divide-glass-border sm:hidden">
@@ -174,7 +174,7 @@ export default function Users() {
                     <th className="px-5 py-2.5 font-semibold">Name</th>
                     <th className="px-5 py-2.5 font-semibold">Username</th>
                     <th className="px-5 py-2.5 font-semibold">Email</th>
-                    <th className="px-5 py-2.5 font-semibold">Role</th>
+                    <th className="px-5 py-2.5 font-semibold">Rol</th>
                     <th className="px-5 py-2.5 font-semibold">Patient access</th>
                     <th className="px-5 py-2.5 font-semibold">Status</th>
                     <th className="px-5 py-2.5 font-semibold">Last login</th>
@@ -245,7 +245,7 @@ export default function Users() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete user"
+        title="Eliminar usuario"
         description={deleteTarget && `Delete "${deleteTarget.first_name} ${deleteTarget.last_name}"? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deleteUser.isPending}

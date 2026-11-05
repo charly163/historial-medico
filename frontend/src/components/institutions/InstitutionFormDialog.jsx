@@ -5,7 +5,15 @@ import { Dialog } from '../ui/Dialog'
 import { Field, TextInput, Select } from '../ui/Field'
 import { Button } from '../ui/Button'
 
-const TYPES = ['Hospital', 'Clinic', 'Laboratory', 'Pharmacy', 'Diagnostic Center', 'Nursing Home', 'Other']
+const INSTITUTION_TYPES = [
+  { value: 'Hospital', label: 'Hospital' },
+  { value: 'Clinic', label: 'Clínica' },
+  { value: 'Laboratory', label: 'Laboratorio' },
+  { value: 'Pharmacy', label: 'Farmacia' },
+  { value: 'Diagnostic Center', label: 'Centro de Diagnóstico' },
+  { value: 'Nursing Home', label: 'Residencia de Mayores' },
+  { value: 'Other', label: 'Otro' },
+]
 
 const EMPTY_FORM = { name: '', type: '', address: '', phone: '', email: '', website: '' }
 
@@ -23,10 +31,10 @@ function toForm(institution) {
 
 function computeErrors(f) {
   const next = {}
-  if (!f.name.trim()) next.name = 'Institution name is required'
-  if (!isValidEmail(f.email.trim())) next.email = 'Please enter a valid email address'
-  if (!isValidPhone(f.phone.trim())) next.phone = 'Phone number can only contain numbers, +, spaces, and hyphens'
-  if (!isValidWebsite(f.website.trim())) next.website = 'Website must start with http:// or https://'
+  if (!f.name.trim()) next.name = 'El nombre de la institución es obligatorio'
+  if (!isValidEmail(f.email.trim())) next.email = 'Por favor ingresa un correo electrónico válido'
+  if (!isValidPhone(f.phone.trim())) next.phone = 'El teléfono solo puede contener números, +, espacios y guiones'
+  if (!isValidWebsite(f.website.trim())) next.website = 'El sitio web debe comenzar con http:// o https://'
   return next
 }
 
@@ -49,14 +57,14 @@ export function InstitutionFormDialog({ open, onOpenChange, institution, onSubmi
     })
   }
 
-  let submitLabel = institution ? 'Update institution' : 'Save institution'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = institution ? 'Actualizar institución' : 'Guardar institución'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={institution ? 'Edit institution' : 'Add new institution'}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={institution ? 'Editar institución' : 'Agregar nueva institución'}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Name" htmlFor="name" required error={errors.name}>
+          <Field label="Nombre" htmlFor="name" required error={errors.name}>
             <TextInput
               id="name"
               value={form.name}
@@ -65,24 +73,24 @@ export function InstitutionFormDialog({ open, onOpenChange, institution, onSubmi
               onBlur={() => touch('name')}
             />
           </Field>
-          <Field label="Type" htmlFor="type">
+          <Field label="Tipo" htmlFor="type">
             <Select id="type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
-              <option value="">Select type</option>
-              {TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+              <option value="">Selecciona el tipo…</option>
+              {INSTITUTION_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
                 </option>
               ))}
             </Select>
           </Field>
         </div>
 
-        <Field label="Address" htmlFor="address">
+        <Field label="Dirección" htmlFor="address">
           <TextInput id="address" value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} />
         </Field>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Phone" htmlFor="phone" error={errors.phone}>
+          <Field label="Teléfono" htmlFor="phone" error={errors.phone}>
             <TextInput
               id="phone"
               value={form.phone}
@@ -91,7 +99,7 @@ export function InstitutionFormDialog({ open, onOpenChange, institution, onSubmi
               onBlur={() => touch('phone')}
             />
           </Field>
-          <Field label="Email" htmlFor="email" error={errors.email}>
+          <Field label="Correo electrónico" htmlFor="email" error={errors.email}>
             <TextInput
               id="email"
               type="email"
@@ -103,7 +111,7 @@ export function InstitutionFormDialog({ open, onOpenChange, institution, onSubmi
           </Field>
         </div>
 
-        <Field label="Website" htmlFor="website" error={errors.website}>
+        <Field label="Sitio web" htmlFor="website" error={errors.website}>
           <TextInput
             id="website"
             placeholder="https://"

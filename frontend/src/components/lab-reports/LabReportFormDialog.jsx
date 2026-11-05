@@ -88,9 +88,9 @@ function LabValueRow({ row, onChange, onRemove, suggestions }) {
         onChange={(e) => update('parameter_name', e.target.value)}
         className="col-span-2 sm:col-span-1"
       />
-      <TextInput type="number" step="0.001" placeholder="Value" value={row.value} onChange={(e) => update('value', e.target.value)} />
-      <TextInput placeholder="Unit" value={row.unit} onChange={(e) => update('unit', e.target.value)} />
-      <TextInput placeholder="Reference range" value={row.reference_range} onChange={(e) => update('reference_range', e.target.value)} />
+      <TextInput type="number" step="0.001" placeholder="Valor" value={row.value} onChange={(e) => update('value', e.target.value)} />
+      <TextInput placeholder="Unidad" value={row.unit} onChange={(e) => update('unit', e.target.value)} />
+      <TextInput placeholder="Rango de referencia" value={row.reference_range} onChange={(e) => update('reference_range', e.target.value)} />
       <Select value={row.status} onChange={(e) => update('status', e.target.value)}>
         <option value="Normal">Normal</option>
         <option value="High">High</option>
@@ -107,7 +107,7 @@ function LabValueRow({ row, onChange, onRemove, suggestions }) {
 function computeErrors(f) {
   const next = {}
   if (!f.patient_id) next.patient_id = 'Please select a patient'
-  if (!f.test_name.trim()) next.test_name = 'Test name is required'
+  if (!f.test_name.trim()) next.test_name = 'El nombre de la prueba es obligatorio'
   if (!f.test_type) next.test_type = 'Please select a test type'
   if (!f.test_date) next.test_date = 'Please select a test date'
   return next
@@ -181,11 +181,11 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
     })
   }
 
-  let submitLabel = report ? 'Update report' : 'Save report'
-  if (saving) submitLabel = 'Saving…'
+  let submitLabel = report ? 'Actualizar informe' : 'Guardar informe'
+  if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={report ? 'Edit lab report' : 'Add lab report'} size="lg">
+    <Dialog open={open} onOpenChange={onOpenChange} title={report ? 'Editar informe de laboratorio' : 'Agregar informe de laboratorio'} size="lg">
       <datalist id="lab-parameter-suggestions">
         {[...suggestions.keys()].map((name) => (
           <option key={name} value={name} />
@@ -194,7 +194,7 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Patient" htmlFor="patient_id" required error={errors.patient_id}>
+          <Field label="Paciente" htmlFor="patient_id" required error={errors.patient_id}>
             <Select
               id="patient_id"
               value={fields.patient_id}
@@ -204,7 +204,7 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
                 touch('patient_id')
               }}
             >
-              <option value="">Select patient</option>
+              <option value="">Selecciona un paciente…</option>
               {(patients ?? []).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.first_name} {p.last_name}
@@ -212,7 +212,7 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
               ))}
             </Select>
           </Field>
-          <Field label="Appointment" htmlFor="appointment_id">
+          <Field label="Cita (opcional)" htmlFor="appointment_id">
             <Select
               id="appointment_id"
               value={fields.appointment_id}
@@ -230,7 +230,7 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
           </Field>
         </div>
 
-        <Field label="Test name" htmlFor="test_name" required error={errors.test_name}>
+        <Field label="Nombre de prueba" htmlFor="test_name" required error={errors.test_name}>
           <TextInput
             id="test_name"
             value={fields.test_name}
@@ -241,7 +241,7 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
         </Field>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Test type" htmlFor="test_type" required error={errors.test_type}>
+          <Field label="Tipo de prueba" htmlFor="test_type" required error={errors.test_type}>
             <Select
               id="test_type"
               value={fields.test_type}
@@ -259,7 +259,7 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
               ))}
             </Select>
           </Field>
-          <Field label="Test date" htmlFor="test_date" required error={errors.test_date}>
+          <Field label="Fecha de la prueba" htmlFor="test_date" required error={errors.test_date}>
             <TextInput
               id="test_date"
               type="date"
@@ -272,9 +272,9 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Institution" htmlFor="institution_id">
+          <Field label="Institución" htmlFor="institution_id">
             <Select id="institution_id" value={fields.institution_id} onChange={(e) => setFields((f) => ({ ...f, institution_id: e.target.value }))}>
-              <option value="">Not specified</option>
+              <option value="">No especificado</option>
               {(institutions ?? []).map((i) => (
                 <option key={i.id} value={i.id}>
                   {i.name}
@@ -282,9 +282,9 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
               ))}
             </Select>
           </Field>
-          <Field label="Performed by" htmlFor="performed_by_id">
+          <Field label="Realizado por" htmlFor="performed_by_id">
             <Select id="performed_by_id" value={fields.performed_by_id} onChange={(e) => setFields((f) => ({ ...f, performed_by_id: e.target.value }))}>
-              <option value="">Not specified</option>
+              <option value="">No especificado</option>
               {(doctors ?? []).map((d) => (
                 <option key={d.id} value={d.id}>
                   Dr. {d.first_name} {d.last_name}

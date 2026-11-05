@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import { ArrowLeft, HeartPulse, Pencil, Trash2, CalendarDays } from 'lucide-react'
 import { createResourceHooks } from '../lib/resource'
+import { translateCategory, translateSeverity } from './Conditions'
 import { formatDate, formatDateTime } from '../lib/format'
 import { useToast } from '../components/ui/Toast'
 import { usePageHeader } from '../lib/pageHeader'
@@ -26,17 +27,17 @@ export default function ConditionDetail() {
   async function handleUpdate(payload) {
     try {
       await updateCondition.mutateAsync({ id, data: payload })
-      notify('Condition updated')
+      notify('Diagnóstico actualizado')
       setEditOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save condition', 'error')
+      notify(err.message || 'Error al guardar diagnóstico', 'error')
     }
   }
 
   function requestDelete() {
     const count = Number(condition?.usage_count) || 0
     if (count > 0) {
-      notify(`Can't delete: referenced in ${count} appointment(s). Update those appointments first.`, 'error')
+      notify(`No se puede eliminar: está referenciado en ${count} cita(s). Modifica esas citas primero.`, 'error')
       return
     }
     setDeleteOpen(true)
@@ -45,10 +46,10 @@ export default function ConditionDetail() {
   async function handleDelete() {
     try {
       await deleteCondition.mutateAsync(id)
-      notify('Condition deleted')
+      notify('Diagnóstico eliminado')
       navigate('/conditions')
     } catch (err) {
-      notify(err.message || 'Failed to delete condition', 'error')
+      notify(err.message || 'Error al eliminar diagnóstico', 'error')
     }
   }
 
@@ -61,10 +62,10 @@ export default function ConditionDetail() {
     ),
     action: (
       <div className="flex gap-2">
-        <IconButton label="Edit condition" onClick={() => setEditOpen(true)} className="border border-glass-border">
+        <IconButton label="Editar diagnóstico" onClick={() => setEditOpen(true)} className="border border-glass-border">
           <Pencil size={15} />
         </IconButton>
-        <IconButton label="Delete condition" onClick={requestDelete} className="border border-glass-border">
+        <IconButton label="Eliminar diagnóstico" onClick={requestDelete} className="border border-glass-border">
           <Trash2 size={15} />
         </IconButton>
       </div>
@@ -72,7 +73,7 @@ export default function ConditionDetail() {
   })
 
   if (isLoading) return <div className="text-sm text-muted">Loading…</div>
-  if (!condition) return <div className="text-sm text-muted">Condition not found.</div>
+  if (!condition) return <div className="text-sm text-muted">Diagnóstico no encontrado.</div>
 
   const appointments = condition.recent_appointments ?? []
 
@@ -82,37 +83,37 @@ export default function ConditionDetail() {
         onClick={() => (location.key === 'default' ? navigate('/conditions') : navigate(-1))}
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-white"
       >
-        <ArrowLeft size={15} /> Back
+        <ArrowLeft size={15} /> Volver
       </button>
 
       <div className="glass mb-4 rounded-[20px] p-6">
         <dl className="grid grid-cols-3 gap-y-3 text-sm">
-          <dt className="font-semibold text-muted">Category</dt>
-          <dd className="col-span-2">{condition.category ? <Badge>{condition.category}</Badge> : 'Uncategorized'}</dd>
+          <dt className="font-semibold text-muted">Categoría</dt>
+          <dd className="col-span-2">{condition.category ? <Badge>{translateCategory(condition.category)}</Badge> : 'Sin categoría'}</dd>
 
-          <dt className="font-semibold text-muted">Severity</dt>
+          <dt className="font-semibold text-muted">Gravedad</dt>
           <dd className="col-span-2">
-            {condition.severity ? <Badge tone={condition.severity.toLowerCase()}>{condition.severity}</Badge> : 'Not set'}
+            {condition.severity ? <Badge tone={condition.severity.toLowerCase()}>{translateSeverity(condition.severity)}</Badge> : 'No establecida'}
           </dd>
 
-          <dt className="font-semibold text-muted">ICD-10 code</dt>
-          <dd className="col-span-2 font-mono">{condition.icd_code || 'Not set'}</dd>
+          <dt className="font-semibold text-muted">Código CIE-10</dt>
+          <dd className="col-span-2 font-mono">{condition.icd_code || 'No establecido'}</dd>
 
           {condition.description && (
             <>
-              <dt className="font-semibold text-muted">Description</dt>
+              <dt className="font-semibold text-muted">Descripción</dt>
               <dd className="col-span-2 whitespace-pre-wrap">{condition.description}</dd>
             </>
           )}
 
-          <dt className="font-semibold text-muted">Usage</dt>
+          <dt className="font-semibold text-muted">Uso</dt>
           <dd className="col-span-2 text-muted">
-            Referenced in {Number(condition.usage_count) || 0} appointment(s), matched by diagnosis text
+            Referenciado en {Number(condition.usage_count) || 0} cita(s), coincidiendo por texto de diagnóstico
           </dd>
 
           {condition.created_at && (
             <>
-              <dt className="font-semibold text-muted">Created</dt>
+              <dt className="font-semibold text-muted">Creado el</dt>
               <dd className="col-span-2 text-muted">{formatDateTime(condition.created_at)}</dd>
             </>
           )}
@@ -122,7 +123,7 @@ export default function ConditionDetail() {
       <div className="glass rounded-[20px]">
         <div className="flex items-center justify-between border-b border-glass-border px-5 py-3.75">
           <h2 className="text-[0.9rem] font-bold">
-            Related appointments{' '}
+            Citas relacionadas{' '}
             <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{appointments.length}</span>
           </h2>
         </div>
@@ -144,7 +145,7 @@ export default function ConditionDetail() {
             ))}
           </div>
         ) : (
-          <p className="px-5 py-4 text-sm text-muted">No appointments reference this condition yet.</p>
+          <p className="px-5 py-4 text-sm text-muted">Ninguna cita hace referencia a este diagnóstico todavía.</p>
         )}
       </div>
 
@@ -160,8 +161,8 @@ export default function ConditionDetail() {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete condition"
-        description={`Delete "${condition.name}"? This cannot be undone.`}
+        title="Eliminar diagnóstico"
+        description={`¿Eliminar "${condition.name}"? Esta acción no se puede deshacer.`}
         onConfirm={handleDelete}
         pending={deleteCondition.isPending}
       />

@@ -31,11 +31,11 @@ export default function Medications() {
   const [deleteTarget, setDeleteTarget] = useState(null)
 
   usePageHeader({
-    title: 'Medications',
+    title: 'Medicamentos',
     subtitle: 'Every medication on file, with dosage forms and ingredients',
     action: (
       <Button onClick={() => setAddOpen(true)}>
-        <Plus size={16} /> Add medication
+        <Plus size={16} /> Agregar medicamento
       </Button>
     ),
   })
@@ -54,10 +54,10 @@ export default function Medications() {
   async function handleAdd(payload) {
     try {
       await createMedication.mutateAsync(payload)
-      notify('Medication added')
+      notify('Medicamento agregado')
       setAddOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save medication', 'error')
+      notify(err.message || 'Error al guardar medicamento', 'error')
     }
   }
 
@@ -65,10 +65,10 @@ export default function Medications() {
     if (!editTarget) return
     try {
       await updateMedication.mutateAsync({ id: editTarget.id, data: payload })
-      notify('Medication updated')
+      notify('Medicamento actualizado')
       setEditTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to save medication', 'error')
+      notify(err.message || 'Error al guardar medicamento', 'error')
     }
   }
 
@@ -88,10 +88,10 @@ export default function Medications() {
     if (!deleteTarget) return
     try {
       await deleteMedication.mutateAsync(deleteTarget.id)
-      notify('Medication deleted')
+      notify('Medicamento eliminado')
       setDeleteTarget(null)
     } catch (err) {
-      notify(err.message || 'Failed to delete medication', 'error')
+      notify(err.message || 'Error al eliminar medicamento', 'error')
     }
   }
 
@@ -117,18 +117,18 @@ export default function Medications() {
       <div className="glass rounded-[20px]">
         <div className="flex items-center justify-between border-b border-glass-border px-5 py-3.75">
           <h2 className="text-[0.9rem] font-bold">
-            Medication list{' '}
+            Lista de medicamentos{' '}
             <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{filtered.length}</span>
           </h2>
         </div>
 
         {isLoading ? (
-          <div className="p-5 text-sm text-muted">Loading…</div>
+          <div className="p-5 text-sm text-muted">Cargando…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Pill}
-            title="No medications found"
-            description={medications?.length ? 'Try a different search.' : 'Add your first medication to get started.'}
+            title="No se encontraron medicamentos"
+            description={medications?.length ? 'Prueba con otra búsqueda.' : 'Agrega tu primer medicamento para comenzar.'}
           />
         ) : (
           <>
@@ -229,7 +229,7 @@ export default function Medications() {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Delete medication"
+        title="Eliminar medicamento"
         description={deleteTarget && `Delete "${deleteTarget.name}"? This cannot be undone.`}
         onConfirm={handleDelete}
         pending={deleteMedication.isPending}
