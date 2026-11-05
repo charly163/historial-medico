@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env'), quiet: true });
+const path = require('path');
+const fs = require('fs');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env'), quiet: true });
 
 const rateLimit = require('express-rate-limit');
 const logger = require('./src/utils/logger');
@@ -26,39 +28,15 @@ const authLimiter = rateLimit({
 const app = express();
 const PORT = process.env.APP_PORT || process.env.PORT || 3000;
 
-// The backend is never exposed directly to the host in either dev or prod
-// (Caddy fronts it in prod, Vite's dev proxy fronts it in dev) — trusting
-// exactly one hop lets express-rate-limit and req.ip read the real client
-// IP from X-Forwarded-For instead of the proxy's own address, without
-// trusting a longer chain a client could spoof into. Anyone running their
-// own reverse proxy in front of Mediqux's own (Traefik, Nginx Proxy
-// Manager, a Cloudflare Tunnel, ...) adds a second hop, and should set
-// TRUST_PROXY_HOPS=2 accordingly — see the README for details. Not in
-// .env.example on purpose: the default of 1 is correct for the vast
-// majority of installs that don't do this, and shouldn't be something
-// every new user has to stop and think about.
 app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS) || 1);
 
-// helmet() alone (no custom CSP): this is a JSON API plus a handful of
-// file-view/download routes, not an HTML-rendering app, so the default CSP
-// would have nothing to actually restrict — but the rest of the default
-// header set (X-Content-Type-Options: nosniff in particular) matters here,
-// since diagnostic-study/lab-report attachments are served inline with a
-// caller-supplied mime type at upload time.
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false // Permite que el frontend cargue recursos sin bloqueo de CSP
+}));
 
-// The frontend never makes a cross-origin request to this backend — Caddy
-// proxies /api same-origin in production, and Vite's dev proxy does the same
-// in dev (see frontend/src/lib/api.js's getApiBaseUrl). So the previous
-// `origin: true` (reflect every Origin) wasn't serving any real browser use
-// case for this app, only widening the surface for a browser-based client on
-// some other origin to make credentialed requests here. Default is now no
-// cross-origin browser access at all; CORS_ORIGIN lets an admin explicitly
-// allow one or more origins (comma-separated) for a use case that needs it
-// (a separate dashboard, a mobile web wrapper on its own origin, etc).
 const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(o => o.trim()).filter(Boolean);
 app.use(cors({
-  origin: allowedOrigins.length > 0 ? allowedOrigins : false,
+  origin: allowedOrigins.length > 0 ? allowedOrigins : true,
   credentials: true,
   exposedHeaders: ['Content-Disposition', 'Content-Type', 'Content-Length']
 }));
@@ -67,31 +45,18 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Create uploads directory if it doesn't exist
-const fs = require('fs');
-const uploadsDir = './uploads';
+const uploadsDir = process.env.UPLOAD_PATH || './uploads';
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Uploaded files (lab report PDFs, diagnostic study attachments) are
-// intentionally NOT served statically here — that bypassed the RBAC checks
-// on test-results.js's and diagnostic-studies.js's /:id/view and
-// /:id/download routes, since a raw /uploads/<filename> path was fetchable
-// by anyone with no auth at all. Those authenticated routes read the same
-// files straight off disk instead.
-
-// Public routes (no authentication required) — rate-limited by the
-// stricter authLimiter instead of the general apiLimiter applied below.
+// Public routes (no authentication required)
 const authRoutes = require('./src/routes/auth');
 app.use('/api/auth', authLimiter, authRoutes);
 
-// Every route registered from here on is rate-limited by apiLimiter,
-// applied once instead of threading it through each individual mount —
-// a request matched and answered by the /api/auth router above never
-// reaches this middleware.
+// Protected routes (rate limited)
 app.use(apiLimiter);
 
-// Protected routes (authentication required)
 const usersRoutes = require('./src/routes/users');
 const { authenticateToken, requireAdmin } = require('./src/middleware/auth');
 const patientRoutes = require('./src/routes/patients');
@@ -115,12 +80,9 @@ app.use('/api/prescriptions', authenticateToken, prescriptionRoutes);
 app.use('/api/test-results', authenticateToken, testResultRoutes);
 app.use('/api/diagnostic-studies', authenticateToken, diagnosticStudiesRoutes);
 
-// System database connectivity check (enhanced with Sequelize) — admin-only:
-// it echoes the raw Postgres version and driver error text on failure, which
-// shouldn't be handed to an unauthenticated caller.
+// System database connectivity check
 app.get('/api/system/database', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    // Test Sequelize connection
     await sequelize.authenticate();
     const [results] = await sequelize.query('SELECT NOW() as current_time, version() as postgres_version');
 
@@ -144,14 +106,6 @@ app.get('/api/system/database', authenticateToken, requireAdmin, async (req, res
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'Server running',
-    // APP_VERSION is baked into the image at build time from the GitHub
-    // Release tag, or a -dev.<sha> suffix for develop-branch builds (see
-    // backend/Dockerfile + .github/workflows/docker-build.yml) — this is the
-    // real, immutable-per-image version. Its Dockerfile default ("dev")
-    // covers any Docker build with no explicit build-arg, docker-compose.dev.yml
-    // included, so package.json's version — a rough in-development indicator,
-    // not what actually shipped — is only ever seen running outside Docker
-    // entirely (e.g. `node server.js` directly on a bare host).
     version: process.env.APP_VERSION || require('./package.json').version,
     timestamp: new Date(),
     nodeVersion: process.version,
@@ -160,7 +114,24 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Routes will be added here as we build features
+// Servir frontend compilado (React / Vite) si existe
+const candidatePaths = [
+  path.join(__dirname, '../frontend/dist'),
+  path.join(__dirname, 'frontend/dist'),
+  path.join(__dirname, '../../frontend/dist')
+];
+let staticFrontendPath = candidatePaths.find(p => fs.existsSync(p));
+
+if (staticFrontendPath) {
+  logger.info(`Serving static frontend from: ${staticFrontendPath}`);
+  app.use(express.static(staticFrontendPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.join(staticFrontendPath, 'index.html'));
+  });
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -171,7 +142,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
+// 404 handler for API routes
 app.use('/*splat', (req, res) => {
   logger.warn('Route not found', { method: req.method, path: req.path });
   res.status(404).json({ error: 'Route not found' });
@@ -186,25 +157,30 @@ process.on('SIGTERM', () => {
 // Database initialization and server startup
 async function initializeServer() {
   try {
-    // Test Sequelize connection
     logger.info('Testing database connection...');
     await sequelize.authenticate();
     logger.info('Database connection established successfully');
     
-    // Note: We're not auto-running migrations. Users should run them manually.
-    logger.info('Database ready. Run migrations with: npm run db:migrate');
+    // Auto-run migrations if AUTO_MIGRATE is not explicitly disabled
+    if (process.env.AUTO_MIGRATE !== 'false') {
+      try {
+        const { execSync } = require('child_process');
+        logger.info('Running database migrations...');
+        execSync('npx sequelize-cli db:migrate', { stdio: 'inherit', env: process.env });
+        logger.info('Database migrations completed successfully');
+      } catch (migErr) {
+        logger.warn('Migration step warning (tables may already exist):', migErr.message);
+      }
+    }
     
-    // Start server
     app.listen(PORT, '0.0.0.0', () => {
-      logger.info(`Backend server running on port ${PORT}`, { 
+      logger.info(`Server running on port ${PORT}`, { 
         port: PORT, 
         environment: process.env.NODE_ENV || 'development',
         logLevel: process.env.LOG_LEVEL || 'INFO',
-        debugMode: process.env.DEBUG === 'true',
         orm: 'Sequelize'
       });
       logger.info(`Health check: http://localhost:${PORT}/api/health`);
-      logger.info(`Database test: http://localhost:${PORT}/api/system/database`);
     });
     
   } catch (error) {

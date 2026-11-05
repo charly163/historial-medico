@@ -36,6 +36,7 @@ module.exports = {
     dialect: 'postgres'
   },
   production: {
+    use_env_variable: process.env.DATABASE_URL ? 'DATABASE_URL' : undefined,
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
@@ -44,7 +45,7 @@ module.exports = {
     dialect: 'postgres',
     dialectOptions: {
       bigNumberStrings: true,
-      ssl: process.env.DB_SSL === 'true' ? {
+      ssl: (process.env.DB_SSL === 'true' || (process.env.DATABASE_URL && process.env.DB_SSL !== 'false')) ? {
         require: true,
         rejectUnauthorized: false
       } : false
