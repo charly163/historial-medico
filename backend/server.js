@@ -5,6 +5,30 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env'), quiet: true });
 
+// Auto-parse DATABASE_URL para servicios PaaS (Render, Supabase, Railway, Neon)
+if (process.env.DATABASE_URL) {
+  try {
+    const parsed = new URL(process.env.DATABASE_URL);
+    if (!process.env.DB_USER && parsed.username) {
+      process.env.DB_USER = decodeURIComponent(parsed.username);
+    }
+    if (!process.env.DB_PASSWORD && parsed.password) {
+      process.env.DB_PASSWORD = decodeURIComponent(parsed.password);
+    }
+    if (!process.env.DB_HOST && parsed.hostname) {
+      process.env.DB_HOST = parsed.hostname;
+    }
+    if (!process.env.DB_PORT && parsed.port) {
+      process.env.DB_PORT = parsed.port;
+    }
+    if (!process.env.DB_NAME && parsed.pathname) {
+      process.env.DB_NAME = parsed.pathname.replace(/^\//, '');
+    }
+  } catch (err) {
+    // ignore
+  }
+}
+
 const rateLimit = require('express-rate-limit');
 const logger = require('./src/utils/logger');
 const { sequelize } = require('./src/models');

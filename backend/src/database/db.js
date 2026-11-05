@@ -1,20 +1,55 @@
 const { Pool } = require('pg');
 const logger = require('../utils/logger');
 
-if (!process.env.DB_USER || !process.env.DB_PASSWORD) {
-  throw new Error('DB_USER and DB_PASSWORD environment variables are required');
+// Soporte automático para DATABASE_URL (Render, Supabase, Neon, Railway)
+if (process.env.DATABASE_URL) {
+  try {
+    const parsed = new URL(process.env.DATABASE_URL);
+    if (!process.env.DB_USER && parsed.username) {
+      process.env.DB_USER = decodeURIComponent(parsed.username);
+    }
+    if (!process.env.DB_PASSWORD && parsed.password) {
+      process.env.DB_PASSWORD = decodeURIComponent(parsed.password);
+    }
+    if (!process.env.DB_HOST && parsed.hostname) {
+      process.env.DB_HOST = parsed.hostname;
+    }
+    if (!process.env.DB_PORT && parsed.port) {
+      process.env.DB_PORT = parsed.port;
+    }
+    if (!process.env.DB_NAME && parsed.pathname) {
+      process.env.DB_NAME = parsed.pathname.replace(/^\//, '');
+    }
+  } catch (err) {
+    logger.warn('Could not parse DATABASE_URL as URL:', err.message);
+  }
 }
 
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'medical_app',
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+if (!process.env.DATABASE_URL && (!process.env.DB_USER || !process.env.DB_PASSWORD)) {
+  throw new Error('DB_USER and DB_PASSWORD (or DATABASE_URL) environment variables are required');
+}
+
+const poolConfig = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+    }
+  : {
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 5432,
+      database: process.env.DB_NAME || 'medical_app',
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+    };
+
+const pool = new Pool(poolConfig);
 
 pool.on('connect', () => {
   logger.info('Connected to PostgreSQL database');
