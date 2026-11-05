@@ -1,169 +1,185 @@
 # MediQuX
 
 <p align="center">
-  <img src=".github/logo.svg" width="88" alt="MediQuX logo" />
+  <img src=".github/logo.svg" width="88" alt="Logo de MediQuX" />
 </p>
 
 <h1 align="center">MediQuX</h1>
 
 <p align="center">
-  A self‑hosted medical record system for individuals and families.
+  Un sistema autoalojado (self-hosted) de gestión de historias clínicas y registros médicos para individuos y familias.
 </p>
 
 <p align="center">
-  <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="License: AGPL v3" /></a>
-  <a href="https://docker.com"><img src="https://img.shields.io/badge/Docker-Containerized-blue" alt="Docker" /></a>
+  <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/Licencia-AGPL%20v3-blue.svg" alt="Licencia: AGPL v3" /></a>
+  <a href="https://docker.com"><img src="https://img.shields.io/badge/Docker-Contenedorizado-blue" alt="Docker" /></a>
   <a href="https://postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-17-blue" alt="PostgreSQL" /></a>
-  <a href="https://github.com/DMJoh/Mediqux/releases"><img src="https://img.shields.io/github/v/release/DMJoh/Mediqux" alt="GitHub Release" /></a>
-  <a href="https://github.com/DMJoh/Mediqux/actions/workflows/docker-build.yml"><img src="https://github.com/DMJoh/Mediqux/actions/workflows/docker-build.yml/badge.svg?event=release" alt="Build" /></a>
 </p>
 
-> All data stays on hardware you control. No cloud dependency, no external API calls, no telemetry.
+Pacientes, médicos, turnos, recetas, análisis de laboratorio y estudios de diagnóstico, todo en un único lugar y ejecutándose enteramente en tu propia infraestructura.
+
+> **Privacidad total:** Todos los datos permanecen bajo tu propio control. Sin dependencias de la nube externa, sin llamadas a APIs de terceros y sin telemetría ni rastreo.
 
 <p align="center">
-  <img src="screenshots/mediqux-walkthrough.gif" alt="MediQuX walkthrough" />
+  <img src="screenshots/mediqux-walkthrough.gif" alt="Demostración de MediQuX" />
 </p>
 
-More [screenshots](SCREENSHOTS.md).
+Puedes ver más capturas en [SCREENSHOTS.md](SCREENSHOTS.md).
 
-## Features
+---
 
-- **Patient records** – contact details, history, appointments, prescriptions, lab reports and diagnostic studies in a single view.
-- **Providers** – doctors and institutions linked to appointments and prescriptions.
-- **Appointments & prescriptions** – scheduling, diagnosis notes and medication tracking with per‑prescription status.
-- **Lab reports** – upload PDFs or enter results manually against reusable reference panels.
-- **Diagnostic studies** – imaging and other files linked to patient, doctor and institution.
-- **Multi‑patient accounts** – a single login can be scoped to several patients (family sharing).
-- **Role‑based access** – admin and user roles; non‑admin accounts only see patients they are linked to (enforced on reads and writes).
-- **Single exposed port** – Caddy fronts the app and proxies API/upload requests internally; nothing else is reachable from outside the container network.
+## 🚀 Características Principales
 
-## Tech Stack
+- **Historial del paciente:** Datos de contacto, antecedentes y una vista integral de turnos, recetas médicas, análisis de laboratorio y estudios diagnósticos relacionados.
+- **Profesionales e instituciones:** Gestión de médicos y centros de salud, vinculados directamente a las consultas y prescripciones correspondientes.
+- **Turnos y consultas:** Registro de citas médicas, notas diagnósticas y seguimiento de tratamientos.
+- **Recetas y medicamentos:** Control de medicamentos activos, dosis, indicaciones y estado por receta.
+- **Informes de laboratorio:** Carga de documentos en PDF o ingreso manual de resultados comparados contra paneles de referencia predefinidos.
+- **Estudios de diagnóstico:** Archivos de imágenes médicas y otros estudios vinculados al paciente, médico e institución.
+- **Cuentas multi-paciente:** Un único inicio de sesión puede tener acceso a múltiples miembros de la familia.
+- **Control de acceso basado en roles (RBAC):** Roles de Administrador y Usuario estándar. Los usuarios comunes solo acceden a los pacientes asignados, con validación tanto en lectura como en escritura.
+- **Puerto único expuesto:** Caddy actúa como proxy inverso y gestiona las solicitudes a la API y archivos subidos de manera interna. Ningún otro servicio queda expuesto a internet.
 
-| Component | Technology |
-|-----------|------------|
-| Backend   | Node.js, Express, PostgreSQL (via `pg`) |
-| Frontend  | React, Vite, Tailwind CSS, TanStack Query, Radix UI |
-| Reverse proxy | Caddy |
-| Deployment | Docker Compose |
+---
 
-## Quick Start
+## 🛠️ Stack Tecnológico
+
+| Componente | Tecnologías |
+|------------|-------------|
+| **Backend** | Node.js, Express, PostgreSQL (vía `pg` y Sequelize) |
+| **Frontend** | React, Vite, Tailwind CSS, TanStack Query, Radix UI, Lucide Icons |
+| **Proxy inverso** | Caddy Server |
+| **Despliegue** | Docker & Docker Compose |
+
+---
+
+## ⚡ Inicio Rápido (Docker)
+
+### 1. Preparar el directorio y descargar archivos
 
 ```bash
 mkdir mediqux && cd mediqux
 
-# Grab the compose file and env template
-curl -O https://raw.githubusercontent.com/DMJoh/Mediqux/main/docker-compose.yml
-curl -o .env https://raw.githubusercontent.com/DMJoh/Mediqux/main/.env.example
+# Descargar la configuración de Docker Compose y el archivo de entorno
+curl -O https://raw.githubusercontent.com/charly163/historial-medico/main/docker-compose.yml
+curl -o .env https://raw.githubusercontent.com/charly163/historial-medico/main/.env.example
 ```
 
-Edit `.env`. At minimum change `POSTGRES_PASSWORD`, `JWT_SECRET` and set `APP_PORT` to the host port you want the app on:
+### 2. Configurar variables de entorno
+
+Edita el archivo `.env`. Como mínimo, define contraseñas seguras para la base de datos y JWT, y el puerto deseado:
 
 ```bash
-POSTGRES_PASSWORD=your_secure_database_password   # e.g. openssl rand -hex 32
-JWT_SECRET=your_long_random_jwt_secret_key       # e.g. openssl rand -hex 32
+POSTGRES_PASSWORD=tu_contraseña_segura_de_base_de_datos
+JWT_SECRET=tu_clave_secreta_jwt_muy_larga_y_segura
 APP_PORT=8080
 ```
 
-Bring the stack up:
+### 3. Iniciar el sistema
 
 ```bash
 docker compose up -d
 ```
 
-Open `http://<your‑server>:APP_PORT`. The first visit shows a setup screen to create the admin account. Subsequent accounts are created by an admin from the Users page (no open signup).
+Abre tu navegador en `http://localhost:8080` (o la IP de tu servidor). En el primer inicio verás la pantalla de configuración inicial para crear la **cuenta de Administrador**. Las cuentas adicionales se crean posteriormente desde el panel de Usuarios por el administrador.
 
-### Development
+---
+
+## 💻 Entorno de Desarrollo Local
+
+Si deseas clonar el repositorio y trabajar en el código:
 
 ```bash
-# Clone the repo and start the dev environment
-git clone https://github.com/DMJoh/Mediqux.git
-cd Mediqux
+# Clonar el repositorio
+git clone https://github.com/charly163/historial-medico.git
+cd historial-medico
+
+# Copiar el archivo de entorno de ejemplo
 cp .env.example .env
+
+# Levantar con docker-compose de desarrollo
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-## Configuration
+O si ejecutas localmente con Node.js en Windows:
+- Puedes usar los scripts auxiliares incluidos:
+  - `./setup-db.ps1`: Configura la base de datos inicial.
+  - `./start-dev.ps1`: Inicia backend y frontend en paralelo.
 
-All configuration lives in `.env`. Essential variables:
+---
+
+## ⚙️ Configuración (`.env`)
+
+Todas las opciones de configuración se definen en el archivo `.env`:
 
 ```bash
-POSTGRES_PASSWORD=change_this_secure_password_123
-JWT_SECRET=change_this_jwt_secret_key_for_production_use_long_random_string
+# Base de Datos
+POSTGRES_DB=mediqux_db
+POSTGRES_USER=mediqux_user
+POSTGRES_PASSWORD=cambiar_por_una_contraseña_segura
+
+# Seguridad y Autenticación
+JWT_SECRET=cambiar_por_una_clave_secreta_larga_y_aleatoria
+
+# Configuración de la Aplicación
 APP_PORT=8080
 MAX_FILE_SIZE=10MB
+LOG_LEVEL=info   # opciones: error, warn, info, debug
+
+# Permisos de archivos en Linux (opcional)
 PUID=1000
 PGID=1000
-LOG_LEVEL=info   # error | warn | info | debug
 ```
 
-Caddy proxies `/api` and `/uploads` to the backend internally, so `APP_PORT` is the only port you expose. The backend itself is never reachable from the host.
+### Uso detrás de otro Proxy Inverso (Nginx, Traefik, Cloudflare Tunnel)
 
-### Running behind another reverse proxy
-
-If you place Traefik, Nginx Proxy Manager, Cloudflare Tunnel, etc. in front of Mediqux's own Caddy, there are now two proxy hops. Set `TRUST_PROXY_HOPS` so rate limiting can identify real visitors:
+Si colocas otro proxy inverso delante de MediQuX, configura los saltos en la variable `TRUST_PROXY_HOPS`:
 
 ```bash
 TRUST_PROXY_HOPS=2
 ```
 
-Leave it unset if Mediqux's bundled Caddy is the only front‑end (default).
+Si usas el Caddy integrado directamente (predeterminado), déjalo sin definir.
 
-## Operations
+---
 
+## 🔧 Mantenimiento y Operaciones
+
+### Ver registros (Logs)
 ```bash
-# Logs
 docker compose logs -f backend
-
-# Health check
-curl http://localhost:8080/api/health
-
-# Admin‑only database endpoint (requires admin bearer token)
-curl -H "Authorization: Bearer <admin-token>" http://localhost:8080/api/system/database
-
-# Update
-docker compose pull && docker compose up -d
-
-# Backup / restore
-docker exec mediqux_postgres pg_dump -U mediqux_user mediqux_db > backup.sql
-docker exec -i mediqux_postgres psql -U mediqux_user mediqux_db < backup.sql
-
-# Migration status
-docker exec mediqux_backend npx sequelize-cli db:migrate:status
 ```
 
-## Troubleshooting
+### Comprobación de estado (Health Check)
+```bash
+curl http://localhost:8080/api/health
+```
 
-- **Database won't connect**
-  ```bash
-  docker compose ps postgres
-  docker compose logs postgres
-  ```
-- **File upload fails**
-  ```bash
-  docker exec mediqux_backend ls -la /app/uploads
-  ```
-- **Frontend can't reach backend** (backend port not published):
-  ```bash
-  docker compose logs frontend
-  docker exec mediqux_frontend wget -qO- http://backend:3000/api/health
-  ```
+### Copias de seguridad (Backup y Restauración)
 
-## Contributing
+**Crear una copia de seguridad:**
+```bash
+docker exec mediqux_postgres pg_dump -U mediqux_user mediqux_db > backup.sql
+```
 
-Fork, create a branch, make your change, and open a PR. Issues and suggestions are welcome even if you don't submit code.
+**Restaurar una copia de seguridad:**
+```bash
+docker exec -i mediqux_postgres psql -U mediqux_user mediqux_db < backup.sql
+```
 
-## Acknowledgements
+### Actualización a nuevas versiones
+```bash
+docker compose pull && docker compose up -d
+```
 
-Built on [Node.js](https://nodejs.org/), [Express](https://expressjs.com/), [PostgreSQL](https://www.postgresql.org/), [React](https://react.dev/), [Vite](https://vite.dev/), [Tailwind CSS](https://tailwindcss.com/), [TanStack Query](https://tanstack.com/query/), [Radix UI](https://www.radix-ui.com/), [Caddy](https://caddyserver.com/), and [Docker](https://www.docker.com/).
+---
 
-## License
+## 📄 Licencia
 
-[AGPL‑v3](https://www.gnu.org/licenses/agpl-3.0). Free to use, modify and self‑host. If you run a modified version as a network service, you must make the source available to its users under the same license.
+Este proyecto está distribuido bajo la licencia [AGPL v3](https://www.gnu.org/licenses/agpl-3.0). Eres libre de usarlo, modificarlo y autoalojarlo libremente. Si ejecutas una versión modificada como un servicio de red, debes poner a disposición el código fuente de esa versión para sus usuarios bajo esta misma licencia.
 
-## About this project
+---
 
-I built MediQuX because I wanted a private, self‑hosted place to track medical records, appointments, lab results and diagnostic studies for my family, and couldn't find one that fit. The idea, requirements and design decisions are mine; AI tooling helped write the code.
+## 🩺 Aviso de Responsabilidad
 
-Sharing it in case it's useful to you too. Open an issue if something's broken or missing.
-
-> This is a personal project shared as‑is. Review it against your own needs before relying on it for anything sensitive or clinical.
+> Este software se proporciona "tal cual" (*as-is*) para fines personales y organizativos. Evalúa su conveniencia y realiza copias de seguridad periódicas antes de almacenar información clínica sensible.
