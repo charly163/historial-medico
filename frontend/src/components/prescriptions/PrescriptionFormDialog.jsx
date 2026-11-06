@@ -6,11 +6,41 @@ import { Dialog } from '../ui/Dialog'
 import { Field, TextInput, Select, Textarea } from '../ui/Field'
 import { Button } from '../ui/Button'
 
-const FREQUENCIES = [
-  'Once daily', 'Twice daily', 'Three times daily', 'Four times daily',
-  'Every 4 hours', 'Every 6 hours', 'Every 8 hours', 'Every 12 hours',
-  'As needed', 'Before meals', 'After meals', 'At bedtime',
+export const FREQUENCIES = [
+  { value: 'Una vez al día', label: 'Una vez al día (cada 24 hs)' },
+  { value: 'Dos veces al día', label: 'Dos veces al día (cada 12 hs)' },
+  { value: 'Tres veces al día', label: 'Tres veces al día (cada 8 hs)' },
+  { value: 'Cuatro veces al día', label: 'Cuatro veces al día (cada 6 hs)' },
+  { value: 'Cada 4 horas', label: 'Cada 4 horas' },
+  { value: 'Cada 6 horas', label: 'Cada 6 horas' },
+  { value: 'Cada 8 horas', label: 'Cada 8 horas' },
+  { value: 'Cada 12 horas', label: 'Cada 12 horas' },
+  { value: 'Según sea necesario', label: 'Según sea necesario (a demanda)' },
+  { value: 'Antes de las comidas', label: 'Antes de las comidas' },
+  { value: 'Después de las comidas', label: 'Después de las comidas' },
+  { value: 'Al acostarse', label: 'Al acostarse (antes de dormir)' },
 ]
+
+export const FREQUENCY_TRANSLATIONS = {
+  'once daily': 'Una vez al día',
+  'twice daily': 'Dos veces al día',
+  'three times daily': 'Tres veces al día',
+  'four times daily': 'Cuatro veces al día',
+  'every 4 hours': 'Cada 4 horas',
+  'every 6 hours': 'Cada 6 horas',
+  'every 8 hours': 'Cada 8 horas',
+  'every 12 hours': 'Cada 12 horas',
+  'as needed': 'Según sea necesario',
+  'before meals': 'Antes de las comidas',
+  'after meals': 'Después de las comidas',
+  'at bedtime': 'Al acostarse',
+}
+
+export function normalizeFrequency(freq) {
+  if (!freq) return ''
+  const lower = freq.trim().toLowerCase()
+  return FREQUENCY_TRANSLATIONS[lower] || freq
+}
 
 const EMPTY_FORM = {
   appointment_id: '',
@@ -28,7 +58,7 @@ function toForm(prescription) {
     appointment_id: prescription.appointment_id || '',
     medication_id: prescription.medication_id || '',
     dosage: prescription.dosage || '',
-    frequency: prescription.frequency || '',
+    frequency: normalizeFrequency(prescription.frequency) || '',
     duration: prescription.duration || '',
     instructions: prescription.instructions || '',
     status: prescription.status || 'active',
@@ -45,10 +75,7 @@ function computeErrors(f) {
   return next
 }
 
-/** Shared add/edit form for prescriptions — used from the list page (add) and the detail
- * page (edit). Prescriptions link to a patient/doctor only via appointment_id (no direct
- * patient_id/doctor_id column), so the appointment picker is the primary "who is this
- * for" selector, matching the legacy UI's model. */
+/** Shared add/edit form for prescriptions — used from the list page (add) and the detail page (edit). */
 export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSubmit, saving }) {
   const [form, setForm] = useState(() => toForm(prescription))
   const { data: appointments } = useAppointments()
@@ -101,18 +128,19 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
               </option>
             ))}
           </Select>
-          {selectedAppointment && (
-            <p className="text-xs text-muted">
-              Patient: {selectedAppointment.patient_first_name} {selectedAppointment.patient_last_name}
-              {selectedAppointment.doctor_first_name && (
-                <>
-                  {' '}
-                  · Doctor: Dr. {selectedAppointment.doctor_first_name} {selectedAppointment.doctor_last_name}
-                </>
-              )}
-            </p>
-          )}
         </Field>
+
+        {selectedAppointment && (
+          <div className="rounded-[10px] bg-glass-2 p-3 text-xs text-muted">
+            <span className="font-semibold text-text">Paciente:</span> {selectedAppointment.patient_first_name} {selectedAppointment.patient_last_name}
+            {selectedAppointment.doctor_first_name && (
+              <>
+                {' '}
+                • <span className="font-semibold text-text">Médico:</span> Dr. {selectedAppointment.doctor_first_name} {selectedAppointment.doctor_last_name}
+              </>
+            )}
+          </div>
+        )}
 
         <Field label="Medicamento" htmlFor="medication_id" required error={errors.medication_id}>
           <Select
@@ -138,7 +166,7 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
           <Field label="Dosis" htmlFor="dosage" required error={errors.dosage}>
             <TextInput
               id="dosage"
-              placeholder="e.g. 500mg"
+              placeholder="ej. 500 mg, 1 comprimido"
               value={form.dosage}
               error={errors.dosage}
               onChange={(e) => setForm((f) => ({ ...f, dosage: e.target.value }))}
@@ -155,10 +183,10 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
                 touch('frequency')
               }}
             >
-              <option value="">Seleccionar frecuencia</option>
+              <option value="">Seleccionar frecuencia…</option>
               {FREQUENCIES.map((f) => (
-                <option key={f} value={f}>
-                  {f}
+                <option key={f.value} value={f.value}>
+                  {f.label}
                 </option>
               ))}
             </Select>
@@ -169,7 +197,7 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
           <Field label="Duración" htmlFor="duration" required error={errors.duration}>
             <TextInput
               id="duration"
-              placeholder="e.g. 7 days"
+              placeholder="ej. 7 días, 1 mes"
               value={form.duration}
               error={errors.duration}
               onChange={(e) => setForm((f) => ({ ...f, duration: e.target.value }))}
@@ -185,18 +213,18 @@ export function PrescriptionFormDialog({ open, onOpenChange, prescription, onSub
           </Field>
         </div>
 
-        <Field label="Special instructions" htmlFor="instructions">
+        <Field label="Instrucciones especiales" htmlFor="instructions">
           <Textarea
             id="instructions"
             value={form.instructions}
             onChange={(e) => setForm((f) => ({ ...f, instructions: e.target.value }))}
-            placeholder="Enter special instructions for the patient…"
+            placeholder="Instrucciones específicas de administración para el paciente…"
           />
         </Field>
 
         <div className="mt-2 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" disabled={saving}>
             {submitLabel}

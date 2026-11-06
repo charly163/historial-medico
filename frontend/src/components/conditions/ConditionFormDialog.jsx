@@ -4,10 +4,27 @@ import { Dialog } from '../ui/Dialog'
 import { Field, TextInput, Select, Textarea } from '../ui/Field'
 import { Button } from '../ui/Button'
 
-const CATEGORIES = [
-  'Cardiovascular', 'Respiratory', 'Neurological', 'Gastrointestinal', 'Endocrine', 'Musculoskeletal',
-  'Dermatological', 'Psychiatric', 'Infectious Disease', 'Oncological', 'Hematological', 'Renal',
-  'Ophthalmological', 'ENT', 'Gynecological', 'Pediatric', 'Emergency', 'Other',
+export const CONDITION_CATEGORIES = [
+  { value: 'Cardiovascular', label: 'Cardiovascular' },
+  { value: 'Respiratoria', label: 'Respiratoria' },
+  { value: 'Neurológica', label: 'Neurológica' },
+  { value: 'Gastrointestinal', label: 'Gastrointestinal' },
+  { value: 'Endocrina', label: 'Endocrina' },
+  { value: 'Musculoesquelética', label: 'Musculoesquelética' },
+  { value: 'Dermatológica', label: 'Dermatológica' },
+  { value: 'Psiquiátrica', label: 'Psiquiátrica' },
+  { value: 'Infecciosa', label: 'Enfermedades Infecciosas' },
+  { value: 'Oncológica', label: 'Oncológica' },
+  { value: 'Hematológica', label: 'Hematológica' },
+  { value: 'Renal', label: 'Renal / Nefrológica' },
+  { value: 'Oftalmológica', label: 'Oftalmológica' },
+  { value: 'ORL', label: 'Otorrinolaringología (ORL)' },
+  { value: 'Ginecológica', label: 'Ginecológica' },
+  { value: 'Pediátrica', label: 'Pediátrica' },
+  { value: 'Urgencias', label: 'Urgencias / Emergencias' },
+  { value: 'Inmunológica', label: 'Inmunológica' },
+  { value: 'Reumatológica', label: 'Reumatológica' },
+  { value: 'Otra', label: 'Otra' },
 ]
 
 const ICD_REGEX = /^[A-Z]\d{2}(\.\d+)?$/i
@@ -34,12 +51,15 @@ function computeErrors(f) {
   return next
 }
 
-/** Shared add/edit form for medical conditions — used from the list page (add) and the detail page (edit).
- * The backend doesn't validate ICD-code format (or reject an odd severity string) — it only enforces
- * that name/icd_code are unique. The format check here is a client-side data-quality nicety, not a
- * server requirement, and duplicate-name/code errors just surface through the normal error toast. */
+/** Shared add/edit form for medical conditions — used from the list page (add) and the detail page (edit). */
 export function ConditionFormDialog({ open, onOpenChange, condition, onSubmit, saving }) {
   const [form, setForm] = useState(() => toForm(condition))
+  const [isCustomCategory, setIsCustomCategory] = useState(() => {
+    if (!condition?.category) return false
+    return !CONDITION_CATEGORIES.some(
+      (c) => c.value.toLowerCase() === condition.category.toLowerCase() || c.label.toLowerCase() === condition.category.toLowerCase()
+    )
+  })
 
   const { errors, touch, guardSubmit } = useFieldValidation(form, computeErrors)
 
@@ -50,7 +70,7 @@ export function ConditionFormDialog({ open, onOpenChange, condition, onSubmit, s
       name: form.name.trim(),
       description: form.description.trim() || null,
       icd_code: form.icd_code.trim().toUpperCase() || null,
-      category: form.category || null,
+      category: form.category?.trim() || null,
       severity: form.severity || null,
     })
   }
@@ -86,15 +106,57 @@ export function ConditionFormDialog({ open, onOpenChange, condition, onSubmit, s
               onBlur={() => touch('icd_code')}
             />
           </Field>
-          <Field label="Categoría" htmlFor="category">
-            <Select id="category" value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}>
-              <option value="">Seleccionar categoría</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+          <Field
+            label="Categoría"
+            htmlFor="category"
+            hint={
+              isCustomCategory ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomCategory(false)
+                    setForm((f) => ({ ...f, category: '' }))
+                  }}
+                  className="text-xs text-glow-b underline hover:opacity-80"
+                >
+                  ← Elegir de la lista
+                </button>
+              ) : null
+            }
+          >
+            {isCustomCategory ? (
+              <TextInput
+                id="category"
+                placeholder="Escribe la nueva categoría médica…"
+                value={form.category}
+                autoFocus
+                onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+              />
+            ) : (
+              <Select
+                id="category"
+                value={form.category}
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (val === '__custom__') {
+                    setIsCustomCategory(true)
+                    setForm((f) => ({ ...f, category: '' }))
+                  } else {
+                    setForm((f) => ({ ...f, category: val }))
+                  }
+                }}
+              >
+                <option value="">Seleccionar categoría…</option>
+                {CONDITION_CATEGORIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+                <option value="__custom__" className="font-semibold text-glow-b">
+                  + Agregar nueva categoría al vuelo…
                 </option>
-              ))}
-            </Select>
+              </Select>
+            )}
           </Field>
         </div>
 

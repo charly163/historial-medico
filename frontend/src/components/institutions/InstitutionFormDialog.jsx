@@ -12,6 +12,7 @@ const INSTITUTION_TYPES = [
   { value: 'Pharmacy', label: 'Farmacia' },
   { value: 'Diagnostic Center', label: 'Centro de Diagnóstico' },
   { value: 'Nursing Home', label: 'Residencia de Mayores' },
+  { value: 'Consultorio', label: 'Consultorio' },
   { value: 'Other', label: 'Otro' },
 ]
 
@@ -41,6 +42,10 @@ function computeErrors(f) {
 /** Shared add/edit form for institutions — used from the list page (add) and the detail page (edit). */
 export function InstitutionFormDialog({ open, onOpenChange, institution, onSubmit, saving }) {
   const [form, setForm] = useState(() => toForm(institution))
+  const [isCustomType, setIsCustomType] = useState(() => {
+    if (!institution?.type) return false
+    return !INSTITUTION_TYPES.some((t) => t.value === institution.type)
+  })
 
   const { errors, touch, guardSubmit } = useFieldValidation(form, computeErrors)
 
@@ -49,7 +54,7 @@ export function InstitutionFormDialog({ open, onOpenChange, institution, onSubmi
     if (guardSubmit()) return
     onSubmit({
       name: form.name.trim(),
-      type: form.type || null,
+      type: form.type?.trim() || null,
       address: form.address.trim() || null,
       phone: form.phone.trim() || null,
       email: form.email.trim() || null,
@@ -73,15 +78,57 @@ export function InstitutionFormDialog({ open, onOpenChange, institution, onSubmi
               onBlur={() => touch('name')}
             />
           </Field>
-          <Field label="Tipo" htmlFor="type">
-            <Select id="type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
-              <option value="">Selecciona el tipo…</option>
-              {INSTITUTION_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
+          <Field
+            label="Tipo"
+            htmlFor="type"
+            hint={
+              isCustomType ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomType(false)
+                    setForm((f) => ({ ...f, type: '' }))
+                  }}
+                  className="text-xs text-glow-b underline hover:opacity-80"
+                >
+                  ← Elegir de la lista
+                </button>
+              ) : null
+            }
+          >
+            {isCustomType ? (
+              <TextInput
+                id="type"
+                placeholder="Escribe el nuevo tipo de institución…"
+                value={form.type}
+                autoFocus
+                onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
+              />
+            ) : (
+              <Select
+                id="type"
+                value={form.type}
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (val === '__custom__') {
+                    setIsCustomType(true)
+                    setForm((f) => ({ ...f, type: '' }))
+                  } else {
+                    setForm((f) => ({ ...f, type: val }))
+                  }
+                }}
+              >
+                <option value="">Selecciona el tipo…</option>
+                {INSTITUTION_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+                <option value="__custom__" className="font-semibold text-glow-b">
+                  + Agregar nuevo tipo al vuelo…
                 </option>
-              ))}
-            </Select>
+              </Select>
+            )}
           </Field>
         </div>
 
@@ -124,7 +171,7 @@ export function InstitutionFormDialog({ open, onOpenChange, institution, onSubmi
 
         <div className="mt-2 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" disabled={saving}>
             {submitLabel}

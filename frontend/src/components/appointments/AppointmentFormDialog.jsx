@@ -47,6 +47,10 @@ function toForm(appointment) {
  * includes patient_id/appointment_date/status in full to avoid a 500 from a null NOT NULL column. */
 export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmit, saving }) {
   const [form, setForm] = useState(() => toForm(appointment))
+  const [isCustomType, setIsCustomType] = useState(() => {
+    if (!appointment?.type) return false
+    return !APPOINTMENT_TYPES.some((t) => t.value === appointment.type || t.label.toLowerCase() === appointment.type.toLowerCase())
+  })
   const { data: patients } = usePatients()
   const { data: doctors } = useDoctors()
   const { data: institutions } = useInstitutions()
@@ -73,7 +77,7 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
       doctor_id: form.doctor_id || null,
       institution_id: form.institution_id || null,
       appointment_date: new Date(form.appointment_date).toISOString(),
-      type: form.type || null,
+      type: form.type?.trim() || null,
       status: form.status,
       notes: form.notes.trim() || null,
       diagnosis: form.diagnosis.trim() || null,
@@ -141,15 +145,57 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
               onBlur={() => touch('appointment_date')}
             />
           </Field>
-          <Field label="Tipo" htmlFor="type">
-            <Select id="type" value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
-              <option value="">Selecciona el tipo…</option>
-              {APPOINTMENT_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
+          <Field
+            label="Tipo"
+            htmlFor="type"
+            hint={
+              isCustomType ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomType(false)
+                    setForm((f) => ({ ...f, type: '' }))
+                  }}
+                  className="text-xs text-glow-b underline hover:opacity-80"
+                >
+                  ← Elegir de la lista
+                </button>
+              ) : null
+            }
+          >
+            {isCustomType ? (
+              <TextInput
+                id="type"
+                placeholder="Escribe el tipo de cita…"
+                value={form.type}
+                autoFocus
+                onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
+              />
+            ) : (
+              <Select
+                id="type"
+                value={form.type}
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (val === '__custom__') {
+                    setIsCustomType(true)
+                    setForm((f) => ({ ...f, type: '' }))
+                  } else {
+                    setForm((f) => ({ ...f, type: val }))
+                  }
+                }}
+              >
+                <option value="">Selecciona el tipo…</option>
+                {APPOINTMENT_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+                <option value="__custom__" className="font-semibold text-glow-b">
+                  + Agregar nuevo tipo al vuelo…
                 </option>
-              ))}
-            </Select>
+              </Select>
+            )}
           </Field>
         </div>
 
@@ -173,7 +219,7 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
 
         <div className="mt-2 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" disabled={saving}>
             {submitLabel}

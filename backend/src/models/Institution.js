@@ -33,11 +33,8 @@ module.exports = (sequelize) => {
     },
     type: {
       type: DataTypes.STRING(100),
-      allowNull: false,
-      defaultValue: 'Hospital',
-      validate: {
-        isIn: [['Hospital', 'Clinic', 'Laboratory', 'Pharmacy', 'Other']]
-      }
+      allowNull: true,
+      defaultValue: 'Hospital'
     },
     address: {
       type: DataTypes.TEXT,

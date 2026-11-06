@@ -6,7 +6,7 @@ import { api } from '../lib/api'
 import { formatDate, formatDateTime } from '../lib/format'
 import { useToast } from '../components/ui/Toast'
 import { usePageHeader } from '../lib/pageHeader'
-import { LabReportFormDialog } from '../components/lab-reports/LabReportFormDialog'
+import { LabReportFormDialog, translateTestType } from '../components/lab-reports/LabReportFormDialog'
 import { IconButton, Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
@@ -21,6 +21,15 @@ function statusTone(status) {
   if (s === 'low') return 'lab-low'
   if (s === 'high') return 'lab-high'
   return 'default'
+}
+
+function translateStatus(status) {
+  const s = (status || '').toLowerCase()
+  if (s === 'normal') return 'Normal'
+  if (s === 'critical') return 'Crítico'
+  if (s === 'low') return 'Bajo'
+  if (s === 'high') return 'Alto'
+  return status || 'Normal'
 }
 
 export default function LabReportDetail() {
@@ -39,20 +48,20 @@ export default function LabReportDetail() {
   async function handleUpdate(payload) {
     try {
       await updateReport.mutateAsync({ id, data: { ...payload.fields, lab_values: payload.labValues } })
-      notify('Lab report updated')
+      notify('Informe de laboratorio actualizado')
       setEditOpen(false)
     } catch (err) {
-      notify(err.message || 'Failed to save lab report', 'error')
+      notify(err.message || 'Error al guardar el informe', 'error')
     }
   }
 
   async function handleDelete() {
     try {
       await deleteReport.mutateAsync(id)
-      notify('Lab report deleted')
+      notify('Informe de laboratorio eliminado')
       navigate('/lab-reports')
     } catch (err) {
-      notify(err.message || 'Failed to delete lab report', 'error')
+      notify(err.message || 'Error al eliminar el informe', 'error')
     }
   }
 
@@ -64,7 +73,7 @@ export default function LabReportDetail() {
       window.open(url, '_blank')
       setTimeout(() => URL.revokeObjectURL(url), 100)
     } catch (err) {
-      notify(err.message || 'Failed to open PDF', 'error')
+      notify(err.message || 'Error al abrir el PDF', 'error')
     } finally {
       setFileBusy(false)
     }
@@ -81,7 +90,7 @@ export default function LabReportDetail() {
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {
-      notify(err.message || 'Failed to download PDF', 'error')
+      notify(err.message || 'Error al descargar el PDF', 'error')
     } finally {
       setFileBusy(false)
     }
@@ -96,18 +105,18 @@ export default function LabReportDetail() {
     ),
     action: (
       <div className="flex gap-2">
-        <IconButton label="Edit lab report" onClick={() => setEditOpen(true)} className="border border-glass-border">
+        <IconButton label="Editar informe" onClick={() => setEditOpen(true)} className="border border-glass-border">
           <Pencil size={15} />
         </IconButton>
-        <IconButton label="Delete lab report" onClick={() => setDeleteOpen(true)} className="border border-glass-border">
+        <IconButton label="Eliminar informe" onClick={() => setDeleteOpen(true)} className="border border-glass-border">
           <Trash2 size={15} />
         </IconButton>
       </div>
     ),
   })
 
-  if (isLoading) return <div className="text-sm text-muted">Loading…</div>
-  if (!report) return <div className="text-sm text-muted">Lab report not found.</div>
+  if (isLoading) return <div className="text-sm text-muted">Cargando…</div>
+  if (!report) return <div className="text-sm text-muted">Informe de laboratorio no encontrado.</div>
 
   const labValues = report.lab_values ?? []
 
@@ -117,19 +126,19 @@ export default function LabReportDetail() {
         onClick={() => (location.key === 'default' ? navigate('/lab-reports') : navigate(-1))}
         className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-white"
       >
-        <ArrowLeft size={15} /> Back
+        <ArrowLeft size={15} /> Volver
       </button>
 
       <div className="glass mb-4 rounded-[20px] p-6">
         <dl className="grid grid-cols-3 gap-y-3 text-sm">
-          <dt className="font-semibold text-muted">Patient</dt>
+          <dt className="font-semibold text-muted">Paciente</dt>
           <dd className="col-span-2">
             <Link to={`/patients/${report.patient_id}`} className="text-glow-b hover:underline">
               {report.patient_first_name} {report.patient_last_name}
             </Link>
           </dd>
 
-          <dt className="font-semibold text-muted">Appointment</dt>
+          <dt className="font-semibold text-muted">Cita / Turno</dt>
           <dd className="col-span-2">
             {report.appointment_id ? (
               <Link to={`/appointments/${report.appointment_id}`} className="text-glow-b hover:underline">
@@ -137,43 +146,43 @@ export default function LabReportDetail() {
                 {report.appointment_type ? ` - ${report.appointment_type}` : ''}
               </Link>
             ) : (
-              'Not linked'
+              'No vinculada'
             )}
           </dd>
 
-          <dt className="font-semibold text-muted">Test type</dt>
+          <dt className="font-semibold text-muted">Tipo de prueba</dt>
           <dd className="col-span-2">
-            <Badge>{report.test_type}</Badge>
+            <Badge>{translateTestType(report.test_type)}</Badge>
           </dd>
 
-          <dt className="font-semibold text-muted">Test date</dt>
+          <dt className="font-semibold text-muted">Fecha de la prueba</dt>
           <dd className="col-span-2">{formatDate(report.test_date)}</dd>
 
-          <dt className="font-semibold text-muted">Institution</dt>
+          <dt className="font-semibold text-muted">Institución</dt>
           <dd className="col-span-2">
             {report.institution_id ? (
               <Link to={`/institutions/${report.institution_id}`} className="text-glow-b hover:underline">
                 {report.institution_name}
               </Link>
             ) : (
-              'Not specified'
+              'No especificado'
             )}
           </dd>
 
-          <dt className="font-semibold text-muted">Performed by</dt>
+          <dt className="font-semibold text-muted">Realizado por</dt>
           <dd className="col-span-2">
             <PhysicianLink doctor={report.performed_by} />
           </dd>
 
           {report.pdf_file_path && (
             <>
-              <dt className="font-semibold text-muted">PDF report</dt>
+              <dt className="font-semibold text-muted">Informe PDF</dt>
               <dd className="col-span-2 flex gap-2">
                 <Button variant="ghost" onClick={handleView} disabled={fileBusy}>
-                  <Eye size={14} /> View
+                  <Eye size={14} /> Ver
                 </Button>
                 <Button variant="ghost" onClick={handleDownload} disabled={fileBusy}>
-                  <Download size={14} /> Download
+                  <Download size={14} /> Descargar
                 </Button>
               </dd>
             </>
@@ -181,7 +190,7 @@ export default function LabReportDetail() {
 
           {report.created_at && (
             <>
-              <dt className="font-semibold text-muted">Created</dt>
+              <dt className="font-semibold text-muted">Creado el</dt>
               <dd className="col-span-2 text-muted">{formatDateTime(report.created_at)}</dd>
             </>
           )}
@@ -191,7 +200,7 @@ export default function LabReportDetail() {
       <div className="glass mb-4 rounded-[20px]">
         <div className="flex items-center justify-between border-b border-glass-border px-5 py-3.75">
           <h2 className="text-[0.9rem] font-bold">
-            Lab values <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{labValues.length}</span>
+            Valores de laboratorio (Lab Values) <span className="ml-1.5 rounded-full bg-glass-2 px-2 py-0.5 font-mono text-xs text-glow-b">{labValues.length}</span>
           </h2>
         </div>
         {labValues.length ? (
@@ -199,10 +208,10 @@ export default function LabReportDetail() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-glass-border bg-white/3 text-left font-mono text-[0.68rem] uppercase tracking-wide text-muted-2">
-                  <th className="px-5 py-2.5 font-semibold">Parameter</th>
-                  <th className="px-5 py-2.5 font-semibold">Value</th>
-                  <th className="px-5 py-2.5 font-semibold">Reference range</th>
-                  <th className="px-5 py-2.5 font-semibold">Status</th>
+                  <th className="px-5 py-2.5 font-semibold">Parámetro</th>
+                  <th className="px-5 py-2.5 font-semibold">Valor</th>
+                  <th className="px-5 py-2.5 font-semibold">Rango de referencia</th>
+                  <th className="px-5 py-2.5 font-semibold">Estado</th>
                 </tr>
               </thead>
               <tbody>
@@ -213,9 +222,9 @@ export default function LabReportDetail() {
                       {v.value}
                       {v.unit ? ` ${v.unit}` : ''}
                     </td>
-                    <td className="px-5 py-3 text-muted">{v.reference_range || 'Not set'}</td>
+                    <td className="px-5 py-3 text-muted">{v.reference_range || 'No establecido'}</td>
                     <td className="px-5 py-3">
-                      <Badge tone={statusTone(v.status)}>{v.status || 'Normal'}</Badge>
+                      <Badge tone={statusTone(v.status)}>{translateStatus(v.status)}</Badge>
                     </td>
                   </tr>
                 ))}
@@ -223,14 +232,14 @@ export default function LabReportDetail() {
             </table>
           </div>
         ) : (
-          <p className="px-5 py-4 text-sm text-muted">No lab values recorded for this report.</p>
+          <p className="px-5 py-4 text-sm text-muted">No hay valores de laboratorio registrados para este informe.</p>
         )}
       </div>
 
       {report.extracted_text && (
         <div className="glass rounded-[20px]">
           <div className="border-b border-glass-border px-5 py-3.75">
-            <h2 className="text-[0.9rem] font-bold">Extracted text</h2>
+            <h2 className="text-[0.9rem] font-bold">Texto extraído</h2>
           </div>
           <pre className="max-h-64 overflow-y-auto whitespace-pre-wrap px-5 py-4 text-xs text-muted">{report.extracted_text}</pre>
         </div>
@@ -249,8 +258,8 @@ export default function LabReportDetail() {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete lab report"
-        description={`Delete "${report.test_name}"? This cannot be undone.`}
+        title="Eliminar informe de laboratorio"
+        description={`¿Deseas eliminar "${report.test_name}"? Esta acción no se puede deshacer.`}
         onConfirm={handleDelete}
         pending={deleteReport.isPending}
       />

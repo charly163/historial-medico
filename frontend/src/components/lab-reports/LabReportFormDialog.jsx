@@ -6,7 +6,36 @@ import { Dialog } from '../ui/Dialog'
 import { Field, TextInput, Select } from '../ui/Field'
 import { Button, IconButton } from '../ui/Button'
 
-const TEST_TYPES = ['Blood', 'Urine', 'X-Ray', 'MRI', 'CT', 'Ultrasound', 'ECG', 'Pathology', 'Other']
+export const TEST_TYPES = [
+  { value: 'Blood', label: 'Sangre (Análisis de sangre)' },
+  { value: 'Urine', label: 'Orina' },
+  { value: 'X-Ray', label: 'Radiografía (Rayos X)' },
+  { value: 'MRI', label: 'Resonancia magnética (RMN)' },
+  { value: 'CT', label: 'Tomografía computarizada (TAC)' },
+  { value: 'Ultrasound', label: 'Ecografía / Ultrasonido' },
+  { value: 'ECG', label: 'Electrocardiograma (ECG)' },
+  { value: 'Pathology', label: 'Patología / Biopsia' },
+  { value: 'Other', label: 'Otro' },
+]
+
+export const TEST_TYPE_LABELS = {
+  blood: 'Sangre',
+  urine: 'Orina',
+  'x-ray': 'Radiografía',
+  mri: 'Resonancia magnética',
+  ct: 'Tomografía computarizada',
+  ultrasound: 'Ecografía',
+  ecg: 'Electrocardiograma',
+  pathology: 'Patología',
+  other: 'Otro',
+}
+
+export function translateTestType(type) {
+  if (!type) return ''
+  const lower = type.trim().toLowerCase()
+  return TEST_TYPE_LABELS[lower] || type
+}
+
 const MAX_FILE_BYTES = 10 * 1024 * 1024
 
 function today() {
@@ -50,8 +79,7 @@ function toLabValues(report) {
 
 /** Flattens lab_values across every already-loaded report into "most recent unit +
  * reference_range typed for this parameter name" — powers the datalist autocomplete
- * below. Replaces the legacy app's separate "Lab Panels" template CRUD subsystem with
- * something derived from the family's own history instead of a pre-configured catalog. */
+ * below. */
 function buildParameterSuggestions(reports) {
   const map = new Map()
   for (const report of reports ?? []) {
@@ -83,7 +111,7 @@ function LabValueRow({ row, onChange, onRemove, suggestions }) {
     <div className="grid grid-cols-2 gap-2 rounded-[10px] border border-glass-border p-3 sm:grid-cols-[1.4fr_0.8fr_0.8fr_1.1fr_1fr_auto] sm:items-center">
       <TextInput
         list="lab-parameter-suggestions"
-        placeholder="Parameter (e.g. Glucose)"
+        placeholder="Parámetro (ej. Glucosa, Colesterol)"
         value={row.parameter_name}
         onChange={(e) => update('parameter_name', e.target.value)}
         className="col-span-2 sm:col-span-1"
@@ -93,11 +121,11 @@ function LabValueRow({ row, onChange, onRemove, suggestions }) {
       <TextInput placeholder="Rango de referencia" value={row.reference_range} onChange={(e) => update('reference_range', e.target.value)} />
       <Select value={row.status} onChange={(e) => update('status', e.target.value)}>
         <option value="Normal">Normal</option>
-        <option value="High">High</option>
-        <option value="Low">Low</option>
-        <option value="Critical">Critical</option>
+        <option value="High">Alto (High)</option>
+        <option value="Low">Bajo (Low)</option>
+        <option value="Critical">Crítico (Critical)</option>
       </Select>
-      <IconButton label="Remove value" type="button" onClick={onRemove} className="justify-self-end">
+      <IconButton label="Eliminar valor de laboratorio" type="button" onClick={onRemove} className="justify-self-end">
         <X size={14} />
       </IconButton>
     </div>
@@ -106,16 +134,14 @@ function LabValueRow({ row, onChange, onRemove, suggestions }) {
 
 function computeErrors(f) {
   const next = {}
-  if (!f.patient_id) next.patient_id = 'Please select a patient'
+  if (!f.patient_id) next.patient_id = 'Por favor selecciona un paciente'
   if (!f.test_name.trim()) next.test_name = 'El nombre de la prueba es obligatorio'
-  if (!f.test_type) next.test_type = 'Please select a test type'
-  if (!f.test_date) next.test_date = 'Please select a test date'
+  if (!f.test_type) next.test_type = 'Por favor selecciona un tipo de prueba'
+  if (!f.test_date) next.test_date = 'Por favor selecciona la fecha de la prueba'
   return next
 }
 
-/** Shared add/edit form for lab reports — used from the list page (add + edit) and the
- * detail page (edit). Editing never shows the PDF field: PUT /test-results/:id has no
- * way to attach or replace a file, only /test-results/upload (create-time only) does. */
+/** Shared add/edit form for lab reports — used from the list page (add + edit) and the detail page (edit). */
 export function LabReportFormDialog({ open, onOpenChange, report, reports, onSubmit, saving }) {
   const [fields, setFields] = useState(() => toFields(report))
   const [labValues, setLabValues] = useState(() => toLabValues(report))
@@ -138,35 +164,23 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
 
   function handleFileChange(e) {
     const picked = e.target.files?.[0] || null
-    if (picked && picked.type !== 'application/pdf') {
-      setFileError('Only PDF files are supported')
-      e.target.value = ''
-      setFile(null)
-      return
-    }
-    if (picked && picked.size > MAX_FILE_BYTES) {
-      setFileError('File must be 10MB or smaller')
-      e.target.value = ''
-      setFile(null)
-      return
-    }
-    setFileError(undefined)
     setFile(picked)
+    if (picked && picked.size > MAX_FILE_BYTES) {
+      setFileError('El archivo debe tener menos de 10 MB')
+    } else {
+      setFileError(undefined)
+    }
   }
 
   function handleSubmit(e) {
     e.preventDefault()
     if (guardSubmit()) return
-    const cleanedValues = labValues
-      .filter((v) => v.parameter_name.trim() && v.value !== '' && !Number.isNaN(Number(v.value)))
-      .map((v) => ({
-        parameter_name: v.parameter_name.trim(),
-        value: Number(v.value),
-        unit: v.unit.trim() || null,
-        reference_range: v.reference_range.trim() || null,
-        status: v.status || 'Normal',
-      }))
-    onSubmit({
+    if (file && file.size > MAX_FILE_BYTES) {
+      setFileError('El archivo debe tener menos de 10 MB')
+      return
+    }
+
+    const payload = {
       fields: {
         patient_id: fields.patient_id,
         appointment_id: fields.appointment_id || null,
@@ -176,18 +190,28 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
         institution_id: fields.institution_id || null,
         performed_by_id: fields.performed_by_id || null,
       },
-      labValues: cleanedValues,
+      labValues: labValues
+        .filter((v) => v.parameter_name.trim())
+        .map((v) => ({
+          parameter_name: v.parameter_name.trim(),
+          value: v.value === '' ? null : Number(v.value),
+          unit: v.unit.trim() || null,
+          reference_range: v.reference_range.trim() || null,
+          status: v.status || 'Normal',
+        })),
       file,
-    })
+    }
+
+    onSubmit(payload)
   }
 
   let submitLabel = report ? 'Actualizar informe' : 'Guardar informe'
   if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={report ? 'Editar informe de laboratorio' : 'Agregar informe de laboratorio'} size="lg">
+    <Dialog open={open} onOpenChange={onOpenChange} title={report ? 'Editar informe de laboratorio' : 'Agregar informe de laboratorio'}>
       <datalist id="lab-parameter-suggestions">
-        {[...suggestions.keys()].map((name) => (
+        {Array.from(suggestions.keys()).map((name) => (
           <option key={name} value={name} />
         ))}
       </datalist>
@@ -219,7 +243,7 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
               onChange={(e) => setFields((f) => ({ ...f, appointment_id: e.target.value }))}
               disabled={!fields.patient_id}
             >
-              <option value="">Not linked</option>
+              <option value="">No vinculada</option>
               {patientAppointments.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.appointment_date?.slice(0, 10)}
@@ -251,10 +275,10 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
                 touch('test_type')
               }}
             >
-              <option value="">Select type</option>
+              <option value="">Seleccionar tipo de prueba…</option>
               {TEST_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+                <option key={t.value} value={t.value}>
+                  {t.label}
                 </option>
               ))}
             </Select>
@@ -296,7 +320,7 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
         </div>
 
         {!report && (
-          <Field label="PDF report (optional)" htmlFor="pdfFile" error={errors.file}>
+          <Field label="Informe PDF (opcional)" htmlFor="pdfFile" error={errors.file}>
             <input
               id="pdfFile"
               type="file"
@@ -307,10 +331,10 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
           </Field>
         )}
         {report?.pdf_file_path && (
-          <p className="text-xs text-muted">This report has a PDF attached. Attaching a new file isn't supported yet — delete and re-add to replace it.</p>
+          <p className="text-xs text-muted">Este informe tiene un archivo PDF adjunto. Para reemplazarlo, elimínalo y vuelve a crearlo.</p>
         )}
 
-        <Field label="Lab values" htmlFor="lab_values">
+        <Field label="Valores de laboratorio (Lab Values)" htmlFor="lab_values">
           <div className="flex flex-col gap-2">
             {labValues.map((row, i) => (
               <LabValueRow
@@ -327,14 +351,14 @@ export function LabReportFormDialog({ open, onOpenChange, report, reports, onSub
               onClick={() => setLabValues((rows) => [...rows, { _key: crypto.randomUUID(), parameter_name: '', value: '', unit: '', reference_range: '', status: 'Normal' }])}
               className="self-start"
             >
-              + Add value
+              + Agregar valor de laboratorio (Lab Value)
             </Button>
           </div>
         </Field>
 
         <div className="mt-2 flex justify-end gap-2">
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit" disabled={saving}>
             {submitLabel}
