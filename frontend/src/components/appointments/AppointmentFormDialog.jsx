@@ -59,11 +59,6 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
     const next = {}
     if (!f.patient_id) next.patient_id = 'Por favor selecciona un paciente'
     if (!f.appointment_date) next.appointment_date = 'Por favor selecciona fecha y hora'
-    if (f.appointment_date && !appointment && f.status === 'scheduled') {
-      if (new Date(f.appointment_date) < new Date()) {
-        next.appointment_date = 'No se puede agendar una cita en el pasado'
-      }
-    }
     return next
   }
 
@@ -88,7 +83,7 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
   if (saving) submitLabel = 'Guardando…'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} title={appointment ? 'Editar cita' : 'Agendar cita'}>
+    <Dialog open={open} onOpenChange={onOpenChange} title={appointment ? 'Editar cita' : 'Registrar cita / turno'}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <Field label="Paciente" htmlFor="patient_id" required error={errors.patient_id}>
           <Select
@@ -141,7 +136,15 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
               type="datetime-local"
               value={form.appointment_date}
               error={errors.appointment_date}
-              onChange={(e) => setForm((f) => ({ ...f, appointment_date: e.target.value }))}
+              onChange={(e) => {
+                const val = e.target.value
+                setForm((f) => {
+                  const isPast = val && new Date(val) < new Date()
+                  // Si es una cita pasada y aún no se cambió el estado, sugerir 'completed' para registrar diagnóstico
+                  const nextStatus = !appointment && isPast && f.status === 'scheduled' ? 'completed' : f.status
+                  return { ...f, appointment_date: val, status: nextStatus }
+                })
+              }}
               onBlur={() => touch('appointment_date')}
             />
           </Field>
@@ -202,18 +205,23 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment, onSubmi
         <Field label="Estado" htmlFor="status">
           <Select id="status" value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}>
             <option value="scheduled">Programada</option>
-            <option value="completed">Completada</option>
+            <option value="completed">Completada (Atendida)</option>
             <option value="cancelled">Cancelada</option>
           </Select>
         </Field>
 
         <Field label="Notas" htmlFor="notes">
-          <Textarea id="notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Cualquier nota adicional o indicación…" />
+          <Textarea id="notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Cualquier nota adicional, motivo de consulta o indicación…" />
         </Field>
 
-        {form.status === 'completed' && (
-          <Field label="Diagnóstico" htmlFor="diagnosis">
-            <Textarea id="diagnosis" value={form.diagnosis} onChange={(e) => setForm((f) => ({ ...f, diagnosis: e.target.value }))} />
+        {(form.status === 'completed' || form.diagnosis) && (
+          <Field label="Diagnóstico / Conclusión médica" htmlFor="diagnosis">
+            <Textarea
+              id="diagnosis"
+              value={form.diagnosis}
+              onChange={(e) => setForm((f) => ({ ...f, diagnosis: e.target.value }))}
+              placeholder="Indica el diagnóstico o resultado de la atención médica…"
+            />
           </Field>
         )}
 

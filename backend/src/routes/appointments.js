@@ -257,12 +257,7 @@ router.post('/', addPatientFilter, async (req, res) => {
     const appointmentDateTime = new Date(appointment_date);
     const now = new Date();
     
-    if (appointmentDateTime < now && status === 'scheduled') {
-      return res.status(400).json({
-        success: false,
-        error: 'Cannot schedule appointment in the past'
-      });
-    }
+    // Citas pasadas permitidas
     
     const result = await db.query(`
       INSERT INTO appointments (
